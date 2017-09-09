@@ -5,7 +5,7 @@ SOURCES=$(shell find . -type f -name '*.cpp')
 
 PROGRAMMER=stk500
 #auskommentieren für automatische Wahl
-PORT=/dev/ttyUSB0
+PORT=/dev/ttyUSB1
 BAUD=11600
 
 #Ab hier nichts verändern
@@ -37,7 +37,7 @@ size:
 
 program: $(TARGET).hex
 	#avrdude -p$(MCU) -P$(PORT) -B$(BAUD) -c$(PROGRAMMER) -Uflash:w:$(TARGET).hex:a
-	~/bin/bootloader -d $(PORT) -v -p $(TARGET).hex
+	~/bin/bootloader -d $(PORT) -b 19200 -v -p $(TARGET).hex
 
 readee:
 	avrdude -p$(MCU) -P$(PORT) -B$(BAUD) -c$(PROGRAMMER) -Ueeprom:r:$(TARGET).eep:i
