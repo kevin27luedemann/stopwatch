@@ -19,6 +19,7 @@ Input::Input(volatile uint8_t *IDDR, volatile uint8_t *IPORT, volatile uint8_t *
     PORT    = IPORT;
     PIN     = IPIN;
     pin_num = PIN_NUMMER;
+    *DDR &= ~(1<<pin_num);
     if(pullup){*PORT |= (1<<pin_num);}
     is_down = 0;
 } //Input

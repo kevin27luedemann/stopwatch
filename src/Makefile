@@ -5,7 +5,7 @@ SOURCES=$(shell find . -type f -name '*.cpp')
 
 PROGRAMMER=stk500
 #auskommentieren für automatische Wahl
-PORT=/dev/ttyUSB1
+PORT=/dev/ttyUSB0
 BAUD=11600
 
 #Ab hier nichts verändern

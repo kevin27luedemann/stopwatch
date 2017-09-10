@@ -24,6 +24,9 @@ All text above, and the splash screen must be included in any redistribution
 #include <avr/io.h>
 #include "SPI.h"
 #include "Output.h"
+#include <math.h>
+#include <avr/pgmspace.h>
+#include "fonts.h"
 
 #define BLACK 1
 #define WHITE 0
@@ -51,9 +54,19 @@ All text above, and the splash screen must be included in any redistribution
 #define PCD8544_SETBIAS 0x10
 #define PCD8544_SETVOP 0x80
 
+//Zeichendefinitionen
+#define charsize 6
+#define charhighte 8
+#define numbersmalsize 16
+#define numbersmalhight 16
+#define numberbigsize 16
+#define numberbighight 24
+
 class nokia_5110{
  public:
   nokia_5110(Output *DC_ob, Output *CS_ob, Output *RST_ob, Spi *spi_ob);
+  ~nokia_5110();
+  uint8_t *pcd8544_buffer;
 
   void begin(uint8_t contrast = 40, uint8_t bias = 0x04);
   
@@ -66,6 +79,16 @@ class nokia_5110{
   
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   uint8_t getPixel(int8_t x, int8_t y);
+
+    void drawVLine(uint8_t x, uint8_t y, uint8_t length);
+    void drawHLine(uint8_t x, uint8_t y, uint8_t length);
+    void drawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t fill);
+	void draw_line(uint8_t x, uint8_t y, uint8_t length, float phi);
+	void draw_ASCI(uint8_t sym,uint8_t x, uint8_t y);
+	void draw_number16x16(uint8_t buch, uint8_t x, uint8_t y);
+	void draw_BIGASCI(uint8_t number, uint8_t x, uint8_t y);
+	void analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t sekanzeige);
+    void drawprogress(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t percent);
 
  private:
   Output *DC;
