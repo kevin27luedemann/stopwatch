@@ -210,7 +210,7 @@ void nokia_5110::draw_BIGASCI(uint8_t buch, uint8_t x, uint8_t y){
 	}
 }
 void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t sekanzeige){
-	uint8_t r=LCDHEIGHT/2-charhighte-1;
+	uint8_t r=LCDHEIGHT/2-charhighte;
 	uint8_t Px=LCDWIDTH/2-1;
 	uint8_t Py=LCDHEIGHT/2-1;
 	uint8_t x=0,y=0;
@@ -227,7 +227,7 @@ void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t
 			drawPixel(x,y,BLACK);
 		}
 
-		r=r-5;
+		r=r-2;
 		//Berechnen des Minutenzeigers
 		for(uint8_t i=0;i<r;i++){
 			winkel=(minute*6.0)*M_PI/180.0-M_PI/2.0;
@@ -237,7 +237,7 @@ void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t
 			drawPixel(x,y,BLACK);
 		}
 
-		r=r-3;
+		r=r-2;
 		//Berechnen des Stundenzeigers
 		for(uint8_t i=0;i<r;i++){
 			winkel=(stunde*30.0+minute/2.0)*M_PI/180.0-M_PI/2.0;
@@ -248,7 +248,7 @@ void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t
 		}
 	}
 	else{
-		r=r-1;
+		r=r;
 		//Berechnen des Minutenzeigers
 		for(uint8_t i=0;i<r;i++){
 			winkel=(minute*6.0)*M_PI/180.0-M_PI/2.0;
@@ -258,7 +258,7 @@ void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t
 			drawPixel(x,y,BLACK);
 		}
 
-		r=r-3;
+		r=r-5;
 		//Berechnen des Stundenzeigers
 		for(uint8_t i=0;i<r;i++){
 			winkel=(stunde*30.0+minute/2.0)*M_PI/180.0-M_PI/2.0;
