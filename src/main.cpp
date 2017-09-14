@@ -1,6 +1,9 @@
 //this example runs with 2 shift registers
 
 #define F_CPU 3686400
+#define R1 46.5
+#define R2 9.96
+#define TEILER R2/(R1+R2)
 #define BAUD 9600
 
 #include <stdio.h>
@@ -76,6 +79,7 @@ ISR(PCINT0_vect){
 
 ISR(PCINT2_vect){
     milis = 0;
+    flag_reg |= (1<<DISP_UPDATE);
 }
 
 ISR(PCINT1_vect){
