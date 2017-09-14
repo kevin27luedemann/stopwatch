@@ -24,10 +24,10 @@ Output DC(&DDRB,&PORTB,1);
 Output RST(&DDRD,&PORTD,7);
 Output BL(&DDRD,&PORTD,6); //later use as PWM
 Input RTSW(&DDRD,&PORTD,&PIND,5,true);
-Input RTDT(&DDRD,&PORTD,&PIND,4,false);
-Input RTCLK(&DDRD,&PORTD,&PIND,3,false);
-Input SQM(&DDRC,&PORTC,&PINC,3,true);
-Input STW(&DDRB,&PORTB,&PINB,0,true);
+Input RTDT(&DDRD,&PORTD,&PIND,4,true);
+Input RTCLK(&DDRD,&PORTD,&PIND,3,true);
+Input SQM(&DDRB,&PORTB,&PINB,0,true);
+Input STW(&DDRC,&PORTC,&PINC,3,true);
 Spi spi;
 nokia_5110 nok(&DC,&CS,&RST,&spi);
 
@@ -70,7 +70,7 @@ ISR(INT0_vect){
     flag_reg |= (1<<DISP_UPDATE);
 }
 
-ISR(PCINT1_vect){
+ISR(PCINT0_vect){
     flag_reg |= (1<<DISP_UPDATE);
 }
 
@@ -78,7 +78,7 @@ ISR(PCINT2_vect){
     milis = 0;
 }
 
-ISR(PCINT0_vect){
+ISR(PCINT1_vect){
     if(STW.ison()){
         flag_reg |= (1<<STOPWATCH);
         //TCCR1B |= (1<<CS10) | (1<<CS11);
