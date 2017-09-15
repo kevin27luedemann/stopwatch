@@ -9,17 +9,16 @@
 
 ds3231::ds3231(){
     t.sec   = 0;
-    t.min   = 0;
-    t.hour  = 0;
-    t.mday  = 0;
-    t.mon   = 0;
-    t.year  = 0;
-    t.wday  = 0;
+    t.min   = 43;
+    t.hour  = 13;
+    t.mday  = 15;
+    t.mon   = 9;
+    t.year  = 2017;
+    t.wday  = 5;
     t.yday  = 0;
     t.isdst = 0;
     t.year_s= 0;
     get();
-    activate_sqm();
 }
 
 ds3231::~ds3231(){
@@ -39,17 +38,6 @@ void ds3231::get(){
 
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_READ);
-    /*
-    for (i = 0; i <= 6; i++) {
-        if(i<6){
-            n[i] = i2c.twi_read(1);
-        }
-        else{
-            n[i] = i2c.twi_read(0);
-        }
-    }
-    i2c.twi_stop();
-    */
     for (i = 0; i <= 6; i++) {
         if(i<6){
             n = i2c.twi_read(1);
@@ -58,7 +46,7 @@ void ds3231::get(){
             n = i2c.twi_read(0);
         }
         if (i == 5) {
-            TimeDate[5] = bcdtodec(n & 0x1F);
+            TimeDate[i] = bcdtodec(n & 0x1F);
             century = (n & 0x80) >> 7;
         } else
             TimeDate[i] = bcdtodec(n);
@@ -99,8 +87,9 @@ void ds3231::set(){
     i2c.twi_write(DS3231_TIME_CAL_ADDR);
     for (i = 0; i <= 6; i++) {
         TimeDate[i] = dectobcd(TimeDate[i]);
-        if (i == 5)
-            TimeDate[5] += century;
+        if (i == 5){
+            TimeDate[i] += century;
+        }
         i2c.twi_write(TimeDate[i]);
     }
     i2c.twi_stop();
@@ -121,7 +110,7 @@ void ds3231::activate_sqm(){
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_WRITE);
     i2c.twi_write(DS3231_CONTROL_ADDR);
-    reg |= DS3231_BBSQW;
+    reg &= ~(DS3231_BBSQW);
     reg &= ~(DS3231_RS1);
     reg &= ~(DS3231_RS2);
     reg &= ~(DS3231_INTCN);
@@ -142,7 +131,7 @@ void ds3231::deactivate_sqm(){
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_WRITE);
     i2c.twi_write(DS3231_CONTROL_ADDR);
-    i2c.twi_write(reg&(~DS3231_BBSQW));
+    i2c.twi_write(reg&(~DS3231_INTCN));
     i2c.twi_stop();
 }
 

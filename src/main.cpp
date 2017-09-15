@@ -1,6 +1,7 @@
 //this example runs with 2 shift registers
 
 #define F_CPU 3686400
+#define F_CPU_KHZ 3686.4
 #define R1 46.5
 #define R2 9.96
 #define TEILER R2/(R1+R2)
@@ -44,11 +45,15 @@ Input taster(&DDRD,&PORTD,&PIND,2,true);
 uint8_t flag_reg;
 
 uint8_t brightnes;
-uint32_t milis;
+uint8_t seconds, minutes;
+uint16_t millise;
 
 ISR(TIMER1_COMPA_vect){
-    flag_reg |= (1<<DISP_UPDATE);
-    milis+=10;
+    if(flag_reg&(1<<STOPWATCH)){
+        flag_reg |= (1<<DISP_UPDATE);
+        seconds++;
+        if(seconds>=60){minutes++;seconds=0;}
+    }
 }
 
 ISR(USART_RX_vect){
@@ -78,23 +83,33 @@ ISR(PCINT0_vect){
 }
 
 ISR(PCINT2_vect){
-    milis = 0;
+    seconds = 0;
+    minutes = 0;
+    millise = 0;
     flag_reg |= (1<<DISP_UPDATE);
 }
 
 ISR(PCINT1_vect){
     if(STW.ison()){
         flag_reg |= (1<<STOPWATCH);
-        //TCCR1B |= (1<<CS10) | (1<<CS11);
-        TCCR1B |= (1<<CS10);
+        TCNT1   = 0;
     }
     else{
         flag_reg &= ~(1<<STOPWATCH);
-        TCNT1   = 0;
-        //TCCR1B &= ~((1<<CS10) | (1<<CS11));
-        TCCR1B &= ~((1<<CS10));
-        TIFR1 |= ((1<<OCF1A) | (1<<TOV1));
+        uint32_t temp1 = TCNT1;
+        temp1 += 1;
+        temp1 *= 64;
+        millise += uint16_t (temp1/F_CPU_KHZ);
+        if(millise>=1000){
+            seconds++;
+            millise-=1000;
+            if(seconds>=60){
+                minutes++;
+                seconds=0;
+            }
+       }
     }
+    flag_reg |= (1<<DISP_UPDATE);
 }
 
 void update_disp();
@@ -106,12 +121,14 @@ int main(void) {
     ACSR = (1<<ACD);
     //uart_init();
     flag_reg = 0;
-    milis = 0;
+    seconds = 0;
+    minutes = 0;
+    millise = 0;
 
     //seconds timer
     TIMSK1 = (1 << OCIE1A);
-    OCR1A  = 36864;
-    TCCR1B = (1 << WGM12); //CTC Mode
+    OCR1A  = 57599;
+    TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
     PCMSK0 |= (1<<PCINT0 );
     PCMSK1 |= (1<<PCINT11);
     PCMSK2 |= (1<<PCINT21);
@@ -125,6 +142,7 @@ int main(void) {
     //fast PWM for BL
     OCR0A  = 128;
     brightnes=50;
+    BL.off();
     sei();
 
     update_disp();
@@ -186,25 +204,23 @@ void update_disp(){
 
     nok.draw_ASCI('0'+rtc.t.mday/10%10   ,LCDWIDTH-8*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.mday%10      ,LCDWIDTH-7*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI(':'                    ,LCDWIDTH-6*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('.'                    ,LCDWIDTH-6*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.mon/10%10    ,LCDWIDTH-5*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.mon%10       ,LCDWIDTH-4*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI(':'                    ,LCDWIDTH-3*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('.'                    ,LCDWIDTH-3*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.year_s/10%10 ,LCDWIDTH-2*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.year_s%10    ,LCDWIDTH-1*charsize,LCDHEIGHT-charhighte);
+
     nok.drawprogress(0,charhighte,LCDWIDTH-1,charhighte*2,brightnes);
 
-    uint8_t sek = (milis/1000);
-    uint8_t min = sek/60;
-            sek = sek%60;
-
-    nok.draw_ASCI('0'+(min/10        )%10,0*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(min           )%10,1*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(minutes/10        )%10,0*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(minutes           )%10,1*charsize,3*charhighte);
     nok.draw_ASCI(':'                    ,2*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(sek/10       )%10,3*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(sek          )%10,4*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(seconds/10       )%10,3*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(seconds          )%10,4*charsize,3*charhighte);
     nok.draw_ASCI('.'                   ,5*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(milis/100    )%10,6*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(milis/10     )%10,7*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(millise/100   )%10,6*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
     nok.display();
 }

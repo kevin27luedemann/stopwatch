@@ -18,12 +18,16 @@
 #define DS3231_AGING_OFFSET_ADDR    0x10
 #define DS3231_TEMPERATURE_ADDR     0x11
 
+#define DS3231_1224	0x40
+
 #define DS3231_A1IE     0x1
 #define DS3231_A2IE     0x2
 #define DS3231_INTCN    0x4
 #define DS3231_RS1	0x8
 #define DS3231_RS2	0x10
-#define DS3231_BBSQW    0x80
+#define DS3231_CONV	0x20
+#define DS3231_BBSQW    0x40
+#define DS3231_EOSC	0x80
 
 #define DS3231_A1F      0x1
 #define DS3231_A2F      0x2
@@ -40,7 +44,7 @@ struct ts {
     uint8_t mon;
     int16_t year;
     uint8_t wday;
-    uint8_t yday;
+    int16_t yday;
     uint8_t isdst;
     uint8_t year_s;
 };
