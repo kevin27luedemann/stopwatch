@@ -48,6 +48,11 @@ uint8_t brightnes;
 uint8_t seconds, minutes;
 uint16_t millise;
 
+void update_disp();
+void nachti();
+void blpwm(uint8_t on);
+float get_voltage();
+
 ISR(TIMER1_COMPA_vect){
     if(flag_reg&(1<<STOPWATCH)){
         flag_reg |= (1<<DISP_UPDATE);
@@ -73,8 +78,8 @@ ISR(INT1_vect){
 }
 
 ISR(INT0_vect){
-    if(flag_reg&(1<<BACKLIGHT)){flag_reg&=~(1<<BACKLIGHT);}
-    else{flag_reg|=(1<<BACKLIGHT);}
+    if(flag_reg&(1<<BACKLIGHT)){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
+    else{flag_reg|=(1<<BACKLIGHT);blpwm(true);}
     flag_reg |= (1<<DISP_UPDATE);
 }
 
@@ -112,10 +117,6 @@ ISR(PCINT1_vect){
     flag_reg |= (1<<DISP_UPDATE);
 }
 
-void update_disp();
-void nachti();
-void blpwm(uint8_t on);
-
 int main(void) {
 
     ACSR = (1<<ACD);
@@ -140,9 +141,9 @@ int main(void) {
     EIMSK |= (1<<INT1) | (1<<INT0);
 
     //fast PWM for BL
-    OCR0A  = 128;
-    brightnes=50;
-    BL.off();
+    //OCR0A  = 128;
+    brightnes=25;
+    blpwm(false);
     sei();
 
     update_disp();
@@ -150,8 +151,8 @@ int main(void) {
 	while(true) 
     {
 
-        if((flag_reg&(1<<BACKLIGHT))&&!(TCCR0B&(1<<CS02))){blpwm(1);}
-        else if(!(flag_reg&(1<<BACKLIGHT))&&(TCCR0B&(1<<CS02))){blpwm(0);}
+        //if((flag_reg&(1<<BACKLIGHT))&&!(TCCR0B&(1<<CS02))){blpwm(1);}
+        //else if(!(flag_reg&(1<<BACKLIGHT))&&(TCCR0B&(1<<CS02))){blpwm(0);}
 
         if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
         else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
@@ -192,6 +193,8 @@ void update_disp(){
         OCR0A = (uint8_t)((float)brightnes*2.55);
     }
     nok.clearDisplay();
+    float batt = get_voltage();
+    batt /= TEILER;
     rtc.get();
     nok.draw_ASCI('0'+rtc.t.hour/10%10,0*charsize,0);
     nok.draw_ASCI('0'+rtc.t.hour%10   ,1*charsize,0);
@@ -222,5 +225,25 @@ void update_disp(){
     nok.draw_ASCI('0'+(millise/100   )%10,6*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
+
+    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-5*charsize,0);
+    nok.draw_ASCI('.'                           ,LCDWIDTH-4*charsize,0);
+    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-3*charsize,0);
+    nok.draw_ASCI('0'+((uint8_t)(batt*100))%10  ,LCDWIDTH-2*charsize,0);
+    nok.draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
     nok.display();
+}
+
+float get_voltage(){
+    ADMUX = (1<<REFS1) | (1<<REFS0);
+    ADCSRA = (1<<ADEN) | (1<<ADPS2) | (1<<ADSC);
+    while(ADCSRA&(1<<ADSC));
+    ADCSRA |= (1<<ADSC);
+    while(ADCSRA&(1<<ADSC));
+    uint16_t val = (uint16_t)ADCL;
+    val += (ADCH<<8);
+
+    float volt = (float)val/1024.;
+    ADCSRA = 0;
+    return volt*1.1;
 }
