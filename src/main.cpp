@@ -151,9 +151,6 @@ int main(void) {
 	while(true) 
     {
 
-        //if((flag_reg&(1<<BACKLIGHT))&&!(TCCR0B&(1<<CS02))){blpwm(1);}
-        //else if(!(flag_reg&(1<<BACKLIGHT))&&(TCCR0B&(1<<CS02))){blpwm(0);}
-
         if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
         else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
 
@@ -181,7 +178,8 @@ void nachti(){
         set_sleep_mode(SLEEP_MODE_IDLE);
     }
     else{
-        set_sleep_mode(SLEEP_MODE_PWR_SAVE);
+        //set_sleep_mode(SLEEP_MODE_PWR_SAVE);
+        set_sleep_mode(SLEEP_MODE_PWR_DOWN);
         //set_sleep_mode(SLEEP_MODE_IDLE);
     }
     sleep_mode();
