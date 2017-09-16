@@ -32,6 +32,7 @@ Input RTDT(&DDRD,&PORTD,&PIND,4,true);
 Input RTCLK(&DDRD,&PORTD,&PIND,3,true);
 Input SQM(&DDRB,&PORTB,&PINB,0,true);
 Input STW(&DDRC,&PORTC,&PINC,3,true);
+Input STR(&DDRC,&PORTC,&PINC,2,true);
 Spi spi;
 nokia_5110 nok(&DC,&CS,&RST,&spi);
 
@@ -78,8 +79,6 @@ ISR(INT1_vect){
 }
 
 ISR(INT0_vect){
-    if(flag_reg&(1<<BACKLIGHT)){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
-    else{flag_reg|=(1<<BACKLIGHT);blpwm(true);}
     flag_reg |= (1<<DISP_UPDATE);
 }
 
@@ -95,11 +94,11 @@ ISR(PCINT2_vect){
 }
 
 ISR(PCINT1_vect){
-    if(STW.ison()){
+    if(STW.ison() && !(flag_reg&(1<<STOPWATCH))){
         flag_reg |= (1<<STOPWATCH);
         TCNT1   = 0;
     }
-    else{
+    else if(STW.ison() && (flag_reg&(1<<STOPWATCH))){
         flag_reg &= ~(1<<STOPWATCH);
         uint32_t temp1 = TCNT1;
         temp1 += 1;
@@ -114,6 +113,8 @@ ISR(PCINT1_vect){
             }
        }
     }
+    if(STR.ison() && (flag_reg&(1<<BACKLIGHT))){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
+    else if(STR.ison() && !(flag_reg&(1<<BACKLIGHT))){flag_reg|=(1<<BACKLIGHT);blpwm(true);}
     flag_reg |= (1<<DISP_UPDATE);
 }
 
@@ -131,13 +132,13 @@ int main(void) {
     OCR1A  = 57599;
     TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
     PCMSK0 |= (1<<PCINT0 );
-    PCMSK1 |= (1<<PCINT11);
+    PCMSK1 |= (1<<PCINT11) | (1<<PCINT10);
     PCMSK2 |= (1<<PCINT21);
     PCICR  |= (1<<PCIE1) | (1<<PCIE2) | (1<<PCIE0);
 
     //interupt detection
-    EICRA |= (1<<ISC11) | (1<<ISC10);
-    EICRA |= (1<<ISC01) | (1<<ISC00);
+    EICRA |= (1<<ISC11);// | (1<<ISC10);
+    EICRA |= (1<<ISC01);// | (1<<ISC00);
     EIMSK |= (1<<INT1) | (1<<INT0);
 
     //fast PWM for BL
