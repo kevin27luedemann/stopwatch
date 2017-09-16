@@ -136,7 +136,7 @@ int main(void) {
     PCICR  |= (1<<PCIE1) | (1<<PCIE2) | (1<<PCIE0);
 
     //interupt detection
-    EICRA |= (1<<ISC11);// | (1<<ISC10);
+    EICRA |= (1<<ISC11) | (1<<ISC10);
     EICRA |= (1<<ISC01) | (1<<ISC00);
     EIMSK |= (1<<INT1) | (1<<INT0);
 
