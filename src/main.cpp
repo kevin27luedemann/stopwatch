@@ -87,9 +87,8 @@ ISR(PCINT0_vect){
 }
 
 ISR(PCINT2_vect){
-    seconds = 0;
-    minutes = 0;
-    millise = 0;
+    if(RTSW.ison() && (flag_reg&(1<<BACKLIGHT))){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
+    else if(RTSW.ison() && !(flag_reg&(1<<BACKLIGHT))){flag_reg|=(1<<BACKLIGHT);blpwm(true);}
     flag_reg |= (1<<DISP_UPDATE);
 }
 
@@ -113,8 +112,11 @@ ISR(PCINT1_vect){
             }
        }
     }
-    if(STR.ison() && (flag_reg&(1<<BACKLIGHT))){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
-    else if(STR.ison() && !(flag_reg&(1<<BACKLIGHT))){flag_reg|=(1<<BACKLIGHT);blpwm(true);}
+    if(STR.ison()){
+        seconds = 0;
+        minutes = 0;
+        millise = 0;
+    }
     flag_reg |= (1<<DISP_UPDATE);
 }
 
