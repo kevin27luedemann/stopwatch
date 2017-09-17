@@ -225,10 +225,9 @@ void update_disp(){
     nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
 
-    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-5*charsize,0);
-    nok.draw_ASCI('.'                           ,LCDWIDTH-4*charsize,0);
-    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-3*charsize,0);
-    nok.draw_ASCI('0'+((uint8_t)(batt*100))%10  ,LCDWIDTH-2*charsize,0);
+    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
+    nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
+    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-2*charsize,0);
     nok.draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
     nok.display();
 }
