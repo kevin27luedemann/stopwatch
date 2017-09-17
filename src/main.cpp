@@ -219,8 +219,8 @@ void update_disp(){
     nok.draw_number16x16((minutes/10)%10,0*numberbigsize,2*charhighte-charhighte/2);
     nok.draw_number16x16((minutes   )%10,1*numberbigsize,2*charhighte-charhighte/2);
 
-    nok.draw_ASCI('.'                    ,2*numberbigsize,2*charhighte-charhighte/2);
-    nok.draw_ASCI('.'                    ,2*numberbigsize,3*charhighte-charhighte/2);
+    nok.draw_ASCI('.'                    ,2*numberbigsize+charsize/4,2*charhighte-charhighte/4*3);
+    nok.draw_ASCI('.'                    ,2*numberbigsize+charsize/4,3*charhighte-charhighte/4*3);
 
     nok.draw_number16x16((seconds/10)%10,2*numberbigsize+charsize,2*charhighte-charhighte/2);
     nok.draw_number16x16((seconds   )%10,3*numberbigsize+charsize,2*charhighte-charhighte/2);
