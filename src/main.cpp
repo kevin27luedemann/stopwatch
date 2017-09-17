@@ -215,12 +215,12 @@ void update_disp(){
 
     nok.drawprogress(0,charhighte,LCDWIDTH-1,charhighte*2,brightnes);
 
-    nok.draw_ASCI('0'+(minutes/10        )%10,0*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(minutes           )%10,1*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(minutes/10    )%10,0*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(minutes       )%10,1*charsize,3*charhighte);
     nok.draw_ASCI(':'                    ,2*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(seconds/10       )%10,3*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(seconds          )%10,4*charsize,3*charhighte);
-    nok.draw_ASCI('.'                   ,5*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(seconds/10    )%10,3*charsize,3*charhighte);
+    nok.draw_ASCI('0'+(seconds       )%10,4*charsize,3*charhighte);
+    nok.draw_ASCI('.'                    ,5*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise/100   )%10,6*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
