@@ -145,7 +145,7 @@ void nokia_5110::draw_ASCI(uint8_t sym,uint8_t x, uint8_t y){
 	}
 	else{
 		for(uint8_t i = 0; i < 7; i++){
-			pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |= 0;
+			pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |= BLACK;
 		}
 	}
 }
@@ -177,35 +177,24 @@ void nokia_5110::draw_number16x16(uint8_t number, uint8_t x, uint8_t y){
 	}
 }
 void nokia_5110::draw_BIGASCI(uint8_t buch, uint8_t x, uint8_t y){
-	uint16_t symbol;
-	if(buch!=' ' && buch>='t'){
-		buch -= 't';
+	uint32_t symbol;
+	if(buch!=' ' && buch>=33){
+		buch -= 33;
 		for(uint8_t i = 0; i < 16;i++){
 			symbol = pgm_read_byte(&font8x16_terminal[buch][i]);
-			symbol = symbol << y%8;
-			if(i<8){
-				pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |=(uint8_t) (symbol & 0x00FF);
-				if(((symbol&0xFF00)>>8)==0){
-					pcd8544_buffer[x+(y/8+1)*LCDWIDTH+i] |= 0;
-				}
-				else {
-					pcd8544_buffer[x+(y/8+1)*LCDWIDTH+i] |= (uint8_t) ((symbol & 0xFF00)>>8);
-				}
+			symbol = symbol << y%16;
+			pcd8544_buffer[x+(y/16)*LCDWIDTH+i] |=(uint8_t) (symbol & 0x00FF);
+			if(((symbol&0xFF00)>>16)==BLACK){
+				pcd8544_buffer[x+(y/16+1)*LCDWIDTH+i] |= BLACK;
 			}
 			else {
-				pcd8544_buffer[x+(y/8+1)*LCDWIDTH+(i-16)] |= (uint8_t) (symbol & 0x00FF);
-				if(((symbol&0xFF00)>>8)==0){
-					pcd8544_buffer[x+(y/8+2)*LCDWIDTH+(i-16)] |= 0;
-				}
-				else {
-					pcd8544_buffer[x+(y/8+2)*LCDWIDTH+(i-16)] |= (uint8_t) ((symbol & 0xFF00)>>8);
-				}
+				pcd8544_buffer[x+(y/16+1)*LCDWIDTH+i] |= (uint8_t) ((symbol & 0xFF00)>>8);
 			}
 		}
 	}
 	else{
-		for(uint8_t i = 0; i < 7; i++){
-			pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |= 0;
+		for(uint8_t i = 0; i < 15; i++){
+			pcd8544_buffer[x+(y/16)*LCDWIDTH+i] |= 0;
 		}
 	}
 }

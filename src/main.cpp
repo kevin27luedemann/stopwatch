@@ -43,6 +43,7 @@ Input taster(&DDRD,&PORTD,&PIND,2,true);
 #define DECREMENT 2
 #define BACKLIGHT 3
 #define STOPWATCH 4
+#define DISP_UPDATE2 5
 uint8_t flag_reg;
 
 uint8_t brightnes;
@@ -50,6 +51,7 @@ uint8_t seconds, minutes;
 uint16_t millise;
 
 void update_disp();
+void update_disp2();
 void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
@@ -68,14 +70,12 @@ ISR(USART_RX_vect){
 
 ISR(INT1_vect){
     if(RTDT.ison()){
-        //if(brightnes<100){brightnes++;}
         flag_reg |= (1<<INCREMENT);
     }
     else{
-        //if(brightnes<=100 && brightnes>0){brightnes--;}
         flag_reg |= (1<<DECREMENT);
     }
-    flag_reg |= (1<<DISP_UPDATE);
+    flag_reg |= (1<<DISP_UPDATE2);
 }
 
 ISR(INT0_vect){
@@ -145,7 +145,7 @@ int main(void) {
 
     //fast PWM for BL
     //OCR0A  = 128;
-    brightnes=25;
+    brightnes=100;
     blpwm(false);
     sei();
 
@@ -158,10 +158,11 @@ int main(void) {
         else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
 
         if((flag_reg&(1<<DISP_UPDATE))){update_disp();flag_reg&=~(1<<DISP_UPDATE);}
+        if((flag_reg&(1<<DISP_UPDATE2))){update_disp2();flag_reg&=~(1<<DISP_UPDATE2);}
 
         nachti();
 	}
-
+    return 0;
 }
 
 void blpwm(uint8_t on){
@@ -215,8 +216,21 @@ void update_disp(){
     nok.draw_ASCI('0'+rtc.t.year_s/10%10 ,LCDWIDTH-2*charsize,LCDHEIGHT-charhighte);
     nok.draw_ASCI('0'+rtc.t.year_s%10    ,LCDWIDTH-1*charsize,LCDHEIGHT-charhighte);
 
-    nok.drawprogress(0,charhighte,LCDWIDTH-1,charhighte*2,brightnes);
+    nok.draw_number16x16((minutes/10)%10,0*numberbigsize,2*charhighte-charhighte/2);
+    nok.draw_number16x16((minutes   )%10,1*numberbigsize,2*charhighte-charhighte/2);
 
+    nok.draw_ASCI('.'                    ,2*numberbigsize,2*charhighte-charhighte/2);
+    nok.draw_ASCI('.'                    ,2*numberbigsize,3*charhighte-charhighte/2);
+
+    nok.draw_number16x16((seconds/10)%10,2*numberbigsize+charsize,2*charhighte-charhighte/2);
+    nok.draw_number16x16((seconds   )%10,3*numberbigsize+charsize,2*charhighte-charhighte/2);
+
+    nok.draw_ASCI('.'                    ,LCDWIDTH-4*charsize,4*charhighte-charhighte/2);
+    nok.draw_ASCI('0'+(millise/100   )%10,LCDWIDTH-3*charsize,4*charhighte-charhighte/2);
+    nok.draw_ASCI('0'+(millise/10    )%10,LCDWIDTH-2*charsize,4*charhighte-charhighte/2);
+    nok.draw_ASCI('0'+(millise       )%10,LCDWIDTH-1*charsize,4*charhighte-charhighte/2);
+
+    /*
     nok.draw_ASCI('0'+(minutes/10    )%10,0*charsize,3*charhighte);
     nok.draw_ASCI('0'+(minutes       )%10,1*charsize,3*charhighte);
     nok.draw_ASCI(':'                    ,2*charsize,3*charhighte);
@@ -226,6 +240,49 @@ void update_disp(){
     nok.draw_ASCI('0'+(millise/100   )%10,6*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
     nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
+    */
+
+    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
+    nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
+    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-2*charsize,0);
+    nok.draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
+    nok.display();
+}
+
+void update_disp2(){
+    if(flag_reg&(1<<BACKLIGHT)){
+        if(brightnes>100){brightnes=100;}
+        OCR0A = (uint8_t)((float)brightnes*2.55);
+    }
+    nok.clearDisplay();
+    float batt = get_voltage();
+    batt /= TEILER;
+    rtc.get();
+    nok.draw_ASCI('0'+rtc.t.hour/10%10,0*charsize,0);
+    nok.draw_ASCI('0'+rtc.t.hour%10   ,1*charsize,0);
+    nok.draw_ASCI(':'                 ,2*charsize,0);
+    nok.draw_ASCI('0'+rtc.t.min/10%10 ,3*charsize,0);
+    nok.draw_ASCI('0'+rtc.t.min%10    ,4*charsize,0);
+    nok.draw_ASCI(':'                 ,5*charsize,0);
+    nok.draw_ASCI('0'+rtc.t.sec/10%10 ,6*charsize,0);
+    nok.draw_ASCI('0'+rtc.t.sec%10    ,7*charsize,0);
+
+    nok.draw_ASCI('0'+rtc.t.mday/10%10   ,LCDWIDTH-8*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('0'+rtc.t.mday%10      ,LCDWIDTH-7*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('.'                    ,LCDWIDTH-6*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('0'+rtc.t.mon/10%10    ,LCDWIDTH-5*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('0'+rtc.t.mon%10       ,LCDWIDTH-4*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('.'                    ,LCDWIDTH-3*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('0'+rtc.t.year_s/10%10 ,LCDWIDTH-2*charsize,LCDHEIGHT-charhighte);
+    nok.draw_ASCI('0'+rtc.t.year_s%10    ,LCDWIDTH-1*charsize,LCDHEIGHT-charhighte);
+
+    if(brightnes>=100){
+        nok.draw_number16x16((brightnes/100)%10, 1*numberbigsize,1*charhighte);
+    }
+    nok.draw_number16x16((brightnes/10)%10, 2*numberbigsize,1*charhighte);
+    nok.draw_number16x16((brightnes)%10, 3*numberbigsize,1*charhighte);
+
+    nok.drawprogress(0,charhighte*3,LCDWIDTH-1,charhighte*5-1,brightnes);
 
     nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
     nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
