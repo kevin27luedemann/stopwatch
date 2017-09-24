@@ -22,11 +22,10 @@
 
 ds3231 rtc;
 
-//Output LED(&DDRB,&PORTB,0);
 Output CS(&DDRB,&PORTB,2);
 Output DC(&DDRB,&PORTB,1);
 Output RST(&DDRD,&PORTD,7);
-Output BL(&DDRD,&PORTD,6); //later use as PWM
+Output BL(&DDRD,&PORTD,6);
 Input RTSW(&DDRD,&PORTD,&PIND,5,true);
 Input RTDT(&DDRD,&PORTD,&PIND,4,true);
 Input RTCLK(&DDRD,&PORTD,&PIND,3,true);
@@ -35,93 +34,55 @@ Input STW(&DDRC,&PORTC,&PINC,3,true);
 Input STR(&DDRC,&PORTC,&PINC,2,true);
 Spi spi;
 nokia_5110 nok(&DC,&CS,&RST,&spi);
-
 Input taster(&DDRD,&PORTD,&PIND,2,true);
 
-#define DISP_UPDATE 0
-#define INCREMENT 1
-#define DECREMENT 2
-#define BACKLIGHT 3
-#define STOPWATCH 4
-#define DISP_UPDATE2 5
-uint8_t flag_reg;
+uint16_t flag_reg;
+#define DISP_UPDATE     0
+#define DISP_UPDATE2    1
+#define BACKLIGHT       2
+#define INCREMENT       3
+#define DECREMENT       4
+#define TIME_INC        5
+#define STOPWATCH       6
 
 uint8_t brightnes;
 uint8_t seconds, minutes;
 uint16_t millise;
 
+void init();
 void update_disp();
 void update_disp2();
 void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
-ISR(TIMER1_COMPA_vect){
-    if(flag_reg&(1<<STOPWATCH)){
-        flag_reg |= (1<<DISP_UPDATE);
-        seconds++;
-        if(seconds>=60){minutes++;seconds=0;}
-    }
-}
-
-ISR(USART_RX_vect){
-    uint8_t temp = uart_getc();
-}
-
-ISR(INT1_vect){
-    if(RTDT.ison()){
-        flag_reg |= (1<<INCREMENT);
-    }
-    else{
-        flag_reg |= (1<<DECREMENT);
-    }
-    flag_reg |= (1<<DISP_UPDATE2);
-}
-
-ISR(INT0_vect){
-    flag_reg |= (1<<DISP_UPDATE);
-}
-
-ISR(PCINT0_vect){
-    flag_reg |= (1<<DISP_UPDATE);
-}
-
-ISR(PCINT2_vect){
-    if(RTSW.ison() && (flag_reg&(1<<BACKLIGHT))){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
-    else if(RTSW.ison() && !(flag_reg&(1<<BACKLIGHT))){flag_reg|=(1<<BACKLIGHT);blpwm(true);}
-    flag_reg |= (1<<DISP_UPDATE);
-}
-
-ISR(PCINT1_vect){
-    if(STW.ison() && !(flag_reg&(1<<STOPWATCH))){
-        flag_reg |= (1<<STOPWATCH);
-        TCNT1   = 0;
-    }
-    else if(STW.ison() && (flag_reg&(1<<STOPWATCH))){
-        flag_reg &= ~(1<<STOPWATCH);
-        uint32_t temp1 = TCNT1;
-        temp1 += 1;
-        temp1 *= 64;
-        millise += uint16_t (temp1/F_CPU_KHZ);
-        if(millise>=1000){
-            seconds++;
-            millise-=1000;
-            if(seconds>=60){
-                minutes++;
-                seconds=0;
-            }
-       }
-    }
-    if(STR.ison()){
-        seconds = 0;
-        minutes = 0;
-        millise = 0;
-    }
-    flag_reg |= (1<<DISP_UPDATE);
-}
+#include "INT_kernals.h"
 
 int main(void) {
 
+    init();
+
+	while(true) 
+    {
+
+        if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
+        else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
+
+        if((flag_reg&(1<<TIME_INC))){
+            seconds++;
+            if(seconds>=60){minutes++;seconds=0;}
+            flag_reg &= ~(1<<TIME_INC);
+        }
+
+        if((flag_reg&(1<<DISP_UPDATE))){update_disp();flag_reg&=~(1<<DISP_UPDATE);}
+        if((flag_reg&(1<<DISP_UPDATE2))){update_disp2();flag_reg&=~(1<<DISP_UPDATE2);}
+
+        nachti();
+	}
+    return 0;
+}
+
+void init(){
     ACSR = (1<<ACD);
     //uart_init();
     flag_reg = 0;
@@ -148,21 +109,7 @@ int main(void) {
     brightnes=100;
     blpwm(false);
     sei();
-
     update_disp();
-
-	while(true) 
-    {
-
-        if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
-        else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
-
-        if((flag_reg&(1<<DISP_UPDATE))){update_disp();flag_reg&=~(1<<DISP_UPDATE);}
-        if((flag_reg&(1<<DISP_UPDATE2))){update_disp2();flag_reg&=~(1<<DISP_UPDATE2);}
-
-        nachti();
-	}
-    return 0;
 }
 
 void blpwm(uint8_t on){
@@ -230,17 +177,6 @@ void update_disp(){
     nok.draw_ASCI('0'+(millise/10    )%10,LCDWIDTH-2*charsize,4*charhighte-charhighte/2);
     nok.draw_ASCI('0'+(millise       )%10,LCDWIDTH-1*charsize,4*charhighte-charhighte/2);
 
-    /*
-    nok.draw_ASCI('0'+(minutes/10    )%10,0*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(minutes       )%10,1*charsize,3*charhighte);
-    nok.draw_ASCI(':'                    ,2*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(seconds/10    )%10,3*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(seconds       )%10,4*charsize,3*charhighte);
-    nok.draw_ASCI('.'                    ,5*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(millise/100   )%10,6*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(millise/10    )%10,7*charsize,3*charhighte);
-    nok.draw_ASCI('0'+(millise       )%10,8*charsize,3*charhighte);
-    */
 
     nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
     nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
