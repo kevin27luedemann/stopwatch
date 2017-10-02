@@ -6,7 +6,7 @@ SOURCES=$(shell find . -type f -name '*.cpp')
 PROGRAMMER=stk500
 #auskommentieren für automatische Wahl
 PORT=/dev/ttyUSB0
-BAUD=11600
+BAUD=38400
 
 #Ab hier nichts verändern
 OBJECTS=$(SOURCES:.cpp=.o)

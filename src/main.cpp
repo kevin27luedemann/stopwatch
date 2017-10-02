@@ -1,4 +1,9 @@
-//this example runs with 2 shift registers
+/*
+ * Main Program
+ *
+ * created by Kevin Luedemann
+ * 02.10.2017
+ */
 
 #define F_CPU 3686400
 #define F_CPU_KHZ 3686.4
@@ -19,6 +24,16 @@
 #include "nokia_5110.h"
 #include "I2C.h"
 #include "ds3231.h"
+//define new and delete operator
+void * operator new(size_t size)
+{
+	return malloc(size);
+}
+void operator delete(void * ptr)
+{
+	free(ptr);
+}
+
 
 ds3231 rtc;
 
@@ -44,10 +59,12 @@ uint16_t flag_reg;
 #define DECREMENT       4
 #define TIME_INC        5
 #define STOPWATCH       6
+#define CLOCK_TICK      7
 
 uint8_t brightnes;
 uint8_t seconds, minutes;
 uint16_t millise;
+float batt;
 
 void init();
 void update_disp();
@@ -56,11 +73,18 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
+#include "Monitor.h"
 #include "INT_kernals.h"
 
 int main(void) {
-
     init();
+
+    monitor* mon[2] = {
+                new stop_watch(&nok,&rtc),
+                new brightnes_settings(&nok,&rtc)
+                };
+
+    mon[0]->draw();
 
 	while(true) 
     {
@@ -74,9 +98,15 @@ int main(void) {
             flag_reg &= ~(1<<TIME_INC);
         }
 
-        if((flag_reg&(1<<DISP_UPDATE))){update_disp();flag_reg&=~(1<<DISP_UPDATE);}
-        if((flag_reg&(1<<DISP_UPDATE2))){update_disp2();flag_reg&=~(1<<DISP_UPDATE2);}
+        if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
 
+        if(flag_reg&(1<<BACKLIGHT)){
+            if(brightnes>100){brightnes=100;}
+            OCR0A = (uint8_t)((float)brightnes*2.55);
+        }
+
+        if((flag_reg&(1<<DISP_UPDATE))){mon[0]->draw();flag_reg&=~(1<<DISP_UPDATE);}
+        if((flag_reg&(1<<DISP_UPDATE2))){mon[1]->draw();flag_reg&=~(1<<DISP_UPDATE2);}
         nachti();
 	}
     return 0;
@@ -109,7 +139,6 @@ void init(){
     brightnes=100;
     blpwm(false);
     sei();
-    update_disp();
 }
 
 void blpwm(uint8_t on){
@@ -134,97 +163,6 @@ void nachti(){
         //set_sleep_mode(SLEEP_MODE_IDLE);
     }
     sleep_mode();
-}
-
-void update_disp(){
-    if(flag_reg&(1<<BACKLIGHT)){
-        if(brightnes>100){brightnes=100;}
-        OCR0A = (uint8_t)((float)brightnes*2.55);
-    }
-    nok.clearDisplay();
-    float batt = get_voltage();
-    batt /= TEILER;
-    rtc.get();
-    nok.draw_ASCI('0'+rtc.t.hour/10%10,0*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.hour%10   ,1*charsize,0);
-    nok.draw_ASCI(':'                 ,2*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.min/10%10 ,3*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.min%10    ,4*charsize,0);
-    nok.draw_ASCI(':'                 ,5*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.sec/10%10 ,6*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.sec%10    ,7*charsize,0);
-
-    nok.draw_ASCI('0'+rtc.t.mday/10%10   ,LCDWIDTH-8*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mday%10      ,LCDWIDTH-7*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('.'                    ,LCDWIDTH-6*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mon/10%10    ,LCDWIDTH-5*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mon%10       ,LCDWIDTH-4*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('.'                    ,LCDWIDTH-3*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.year_s/10%10 ,LCDWIDTH-2*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.year_s%10    ,LCDWIDTH-1*charsize,LCDHEIGHT-charhighte);
-
-    nok.draw_number16x16((minutes/10)%10,0*numberbigsize,2*charhighte-charhighte/2);
-    nok.draw_number16x16((minutes   )%10,1*numberbigsize,2*charhighte-charhighte/2);
-
-    nok.draw_ASCI('.'                    ,2*numberbigsize+charsize/4,2*charhighte-charhighte/4*3);
-    nok.draw_ASCI('.'                    ,2*numberbigsize+charsize/4,3*charhighte-charhighte/4*3);
-
-    nok.draw_number16x16((seconds/10)%10,2*numberbigsize+charsize,2*charhighte-charhighte/2);
-    nok.draw_number16x16((seconds   )%10,3*numberbigsize+charsize,2*charhighte-charhighte/2);
-
-    nok.draw_ASCI('.'                    ,LCDWIDTH-4*charsize,4*charhighte-charhighte/2);
-    nok.draw_ASCI('0'+(millise/100   )%10,LCDWIDTH-3*charsize,4*charhighte-charhighte/2);
-    nok.draw_ASCI('0'+(millise/10    )%10,LCDWIDTH-2*charsize,4*charhighte-charhighte/2);
-    nok.draw_ASCI('0'+(millise       )%10,LCDWIDTH-1*charsize,4*charhighte-charhighte/2);
-
-
-    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
-    nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
-    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-2*charsize,0);
-    nok.draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
-    nok.display();
-}
-
-void update_disp2(){
-    if(flag_reg&(1<<BACKLIGHT)){
-        if(brightnes>100){brightnes=100;}
-        OCR0A = (uint8_t)((float)brightnes*2.55);
-    }
-    nok.clearDisplay();
-    float batt = get_voltage();
-    batt /= TEILER;
-    rtc.get();
-    nok.draw_ASCI('0'+rtc.t.hour/10%10,0*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.hour%10   ,1*charsize,0);
-    nok.draw_ASCI(':'                 ,2*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.min/10%10 ,3*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.min%10    ,4*charsize,0);
-    nok.draw_ASCI(':'                 ,5*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.sec/10%10 ,6*charsize,0);
-    nok.draw_ASCI('0'+rtc.t.sec%10    ,7*charsize,0);
-
-    nok.draw_ASCI('0'+rtc.t.mday/10%10   ,LCDWIDTH-8*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mday%10      ,LCDWIDTH-7*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('.'                    ,LCDWIDTH-6*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mon/10%10    ,LCDWIDTH-5*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.mon%10       ,LCDWIDTH-4*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('.'                    ,LCDWIDTH-3*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.year_s/10%10 ,LCDWIDTH-2*charsize,LCDHEIGHT-charhighte);
-    nok.draw_ASCI('0'+rtc.t.year_s%10    ,LCDWIDTH-1*charsize,LCDHEIGHT-charhighte);
-
-    if(brightnes>=100){
-        nok.draw_number16x16((brightnes/100)%10, 1*numberbigsize,1*charhighte);
-    }
-    nok.draw_number16x16((brightnes/10)%10, 2*numberbigsize,1*charhighte);
-    nok.draw_number16x16((brightnes)%10, 3*numberbigsize,1*charhighte);
-
-    nok.drawprogress(0,charhighte*3,LCDWIDTH-1,charhighte*5-1,brightnes);
-
-    nok.draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
-    nok.draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
-    nok.draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-2*charsize,0);
-    nok.draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
-    nok.display();
 }
 
 float get_voltage(){

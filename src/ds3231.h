@@ -36,17 +36,47 @@
 #include <avr/io.h>
 #include "I2C.h"
 
-struct ts {
-    uint8_t sec;
-    uint8_t min;
-    uint8_t hour;
-    uint8_t mday;
-    uint8_t mon;
-    int16_t year;
-    uint8_t wday;
-    int16_t yday;
-    uint8_t isdst;
-    uint8_t year_s;
+class ts {
+public:
+	int8_t sec;
+	int8_t min;
+	int8_t hour;
+	int8_t mday;
+	int8_t mon;
+	int16_t year;
+	int8_t wday;
+	int16_t yday;
+	int8_t isdst;
+	int8_t year_s;
+
+	inline void inc(){
+		sec++;
+		if(sec>=60){
+			sec=0;
+			min++;
+			if(min>=60){
+				min=0;
+				hour++;
+				if(hour>=24){
+					hour=0;
+				}
+			}
+		}
+	}
+	inline void dec(){
+		sec--;
+		if(sec<=0){
+			sec=60;
+			min--;
+			if(min<=0){
+				min=60;
+				hour--;
+				if(hour<=0){
+					hour=24;
+				}
+			}
+		}
+	}
 };
 
 class ds3231
