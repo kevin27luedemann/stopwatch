@@ -57,14 +57,16 @@ uint16_t flag_reg;
 #define BACKLIGHT       2
 #define INCREMENT       3
 #define DECREMENT       4
-#define TIME_INC        5
-#define STOPWATCH       6
-#define CLOCK_TICK      7
+#define BTN_PRESSED     5
+#define TIME_INC        6
+#define STOPWATCH       7
+#define CLOCK_TICK      8
 
 uint8_t brightnes;
 uint8_t seconds, minutes;
 uint16_t millise;
 float batt;
+uint8_t position;
 
 void init();
 void update_disp();
@@ -73,24 +75,31 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
+#define numberofpages 3
 #include "Monitor.h"
 #include "INT_kernals.h"
 
 int main(void) {
     init();
 
-    monitor* mon[2] = {
+    monitor* mon[4] = {
                 new stop_watch(&nok,&rtc),
-                new brightnes_settings(&nok,&rtc)
+                new brightnes_settings(&nok,&rtc),
+                new blank(&nok,&rtc),
+                new menue(&nok,&rtc)
                 };
 
-    mon[0]->draw();
+    mon[position]->draw();
 
 	while(true) 
     {
-
+        /*
         if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
         else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
+        */
+        if(flag_reg&(1<<INCREMENT)){mon[position]->inc();flag_reg&=~(1<<INCREMENT);}
+        else if(flag_reg&(1<<DECREMENT)){mon[position]->dec();flag_reg&=~(1<<DECREMENT);}
+        else if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
 
         if((flag_reg&(1<<TIME_INC))){
             seconds++;
@@ -105,8 +114,7 @@ int main(void) {
             OCR0A = (uint8_t)((float)brightnes*2.55);
         }
 
-        if((flag_reg&(1<<DISP_UPDATE))){mon[0]->draw();flag_reg&=~(1<<DISP_UPDATE);}
-        if((flag_reg&(1<<DISP_UPDATE2))){mon[1]->draw();flag_reg&=~(1<<DISP_UPDATE2);}
+        if((flag_reg&(1<<DISP_UPDATE))){mon[position]->draw();flag_reg&=~(1<<DISP_UPDATE);}
         nachti();
 	}
     return 0;
@@ -137,8 +145,10 @@ void init(){
     //fast PWM for BL
     //OCR0A  = 128;
     brightnes=100;
-    blpwm(false);
+    blpwm(true);
+    flag_reg |= (1<<BACKLIGHT);
     sei();
+    position = numberofpages;
 }
 
 void blpwm(uint8_t on){

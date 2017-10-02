@@ -24,19 +24,30 @@ protected:
 	nokia_5110 *no;
 	ds3231 *rt;
 public:
-	uint8_t posy;
-	uint8_t posx;
+	int8_t posy;
 	uint8_t maxentries;
-	uint8_t maxentriesx;
 	monitor(nokia_5110 *display, ds3231 *clock)
 	{
 		no = display;
 		rt = clock;
 		posy=0;
-		posx=0;
 		maxentries=1;
-		maxentriesx = 1;
 	}
+
+    volatile void btn(){
+        position = numberofpages;
+        //position = posy;
+    }
+
+    volatile void inc(){
+        posy++;
+        if(posy>=maxentries){posy = 0;}
+    }
+	
+    volatile void dec(){
+        posy--;
+        if(posy<0){posy=maxentries-1;}
+    }
 	
 	//draw header
 	virtual void header(){
@@ -117,6 +128,14 @@ class brightnes_settings:public monitor
 public:
 	brightnes_settings(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){}
 
+    void inc(){
+        if(brightnes<99){brightnes+=2;}
+    }
+    
+    void dec(){
+        if(brightnes<=100&&brightnes>1){brightnes-=2;}
+    }
+
 	void draw()
 	{
 		monitor::draw();
@@ -132,6 +151,63 @@ public:
 		send();
 	}
 
+};
+
+const char menue_entries[][11] PROGMEM = {
+    "Stop watch",
+    "Backlight ",
+    "Blank     "};
+class menue:public monitor
+{
+public:
+	menue(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
+        maxentries = numberofpages; 
+    }
+
+    void btn(){
+        position = posy;
+    }
+
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+        int8_t places[3] = {posy-1,
+                            posy,
+                            posy+1};
+        for(uint8_t i=0; i<3; i++){
+            if(places[i]>=maxentries){
+                places[i] -= maxentries;
+            }
+            else if(places[i]<0){
+                places[i] += maxentries;
+            }
+        }
+		for(uint8_t i=0;i<10;i++){
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[0]][i]),i*charsize+charsize,1*charhighte);}
+		for(uint8_t i=0;i<10;i++){
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[1]][i]),i*charsize+charsize,2*charhighte);}
+		for(uint8_t i=0;i<10;i++){
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[2]][i]),i*charsize+charsize,3*charhighte);}
+		no->draw_ASCI('>',0*charsize,(2)*charhighte);
+		no->draw_ASCI(posy+'0',0*charsize,(4)*charhighte);
+
+		send();
+	}
+};
+
+class blank:public monitor
+{
+public:
+	blank(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
+    }
+
+	void draw()
+	{
+		monitor::draw();
+		send();
+	}
 };
 
 #endif /* MONITOR_H_ */

@@ -20,7 +20,7 @@ ISR(INT1_vect){
     else{
         flag_reg |= (1<<DECREMENT);
     }
-    flag_reg |= (1<<DISP_UPDATE2);
+    flag_reg |= (1<<DISP_UPDATE);
 }
 
 ISR(PCINT0_vect){
@@ -56,7 +56,9 @@ ISR(PCINT1_vect){
 }
 
 ISR(PCINT2_vect){
+    /*
     if(RTSW.ison() && (flag_reg&(1<<BACKLIGHT))){flag_reg&=~(1<<BACKLIGHT);blpwm(false);}
     else if(RTSW.ison() && !(flag_reg&(1<<BACKLIGHT))){flag_reg|=(1<<BACKLIGHT);blpwm(true);}
-    flag_reg |= (1<<DISP_UPDATE);
+    */
+    if(RTSW.ison()){flag_reg |= (1<<DISP_UPDATE) | (1<<BTN_PRESSED);}
 }
