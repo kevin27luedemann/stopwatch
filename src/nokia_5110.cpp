@@ -176,28 +176,6 @@ void nokia_5110::draw_number16x16(uint8_t number, uint8_t x, uint8_t y){
 		}
 	}
 }
-void nokia_5110::draw_BIGASCI(uint8_t buch, uint8_t x, uint8_t y){
-	uint32_t symbol;
-	if(buch!=' ' && buch>=33){
-		buch -= 33;
-		for(uint8_t i = 0; i < 16;i++){
-			symbol = pgm_read_byte(&font8x16_terminal[buch][i]);
-			symbol = symbol << y%16;
-			pcd8544_buffer[x+(y/16)*LCDWIDTH+i] |=(uint8_t) (symbol & 0x00FF);
-			if(((symbol&0xFF00)>>16)==BLACK){
-				pcd8544_buffer[x+(y/16+1)*LCDWIDTH+i] |= BLACK;
-			}
-			else {
-				pcd8544_buffer[x+(y/16+1)*LCDWIDTH+i] |= (uint8_t) ((symbol & 0xFF00)>>8);
-			}
-		}
-	}
-	else{
-		for(uint8_t i = 0; i < 15; i++){
-			pcd8544_buffer[x+(y/16)*LCDWIDTH+i] |= 0;
-		}
-	}
-}
 void nokia_5110::analog(uint8_t stunde, uint8_t minute, uint8_t sekunde, uint8_t sekanzeige){
 	uint8_t r=LCDHEIGHT/2-charhighte;
 	uint8_t Px=LCDWIDTH/2-1;

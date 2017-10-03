@@ -23,9 +23,9 @@ private:
 protected:
 	nokia_5110 *no;
 	ds3231 *rt;
-public:
 	int8_t posy;
 	uint8_t maxentries;
+public:
 	monitor(nokia_5110 *display, ds3231 *clock)
 	{
 		no = display;
@@ -34,17 +34,16 @@ public:
 		maxentries=1;
 	}
 
-    volatile void btn(){
-        position = numberofpages;
-        //position = posy;
+    virtual void btn(){
+		position = numberofpages;
     }
 
-    volatile void inc(){
+    virtual void inc(){
         posy++;
         if(posy>=maxentries){posy = 0;}
     }
 	
-    volatile void dec(){
+    virtual void dec(){
         posy--;
         if(posy<0){posy=maxentries-1;}
     }
@@ -157,7 +156,7 @@ const char menue_entries[][11] PROGMEM = {
     "Stop watch",
     "Backlight ",
     "Blank     "};
-class menue:public monitor
+class menue: public monitor
 {
 public:
 	menue(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
@@ -165,7 +164,7 @@ public:
     }
 
     void btn(){
-        position = posy;
+		position = posy;
     }
 
 	void draw()
@@ -173,10 +172,9 @@ public:
 		monitor::draw();
 		header();
 		footer();
-        int8_t places[3] = {posy-1,
-                            posy,
-                            posy+1};
+		int8_t places[3];
         for(uint8_t i=0; i<3; i++){
+			places[i] = posy+(i-1);
             if(places[i]>=maxentries){
                 places[i] -= maxentries;
             }

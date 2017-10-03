@@ -26,11 +26,11 @@ ds3231::~ds3231(){
 }
 
 void ds3231::get(){
-    uint8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
+    int8_t TimeDate[7];        //second,minute,hour,dow,day,month,year
     //uint8_t n[7];
-    uint8_t century = 0;
-    uint8_t i, n;
-    uint16_t year_full;
+    int8_t century = 0;
+    int8_t i, n;
+    int16_t year_full;
 
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_WRITE);
@@ -70,7 +70,7 @@ void ds3231::get(){
 }
 
 void ds3231::set(){
-    uint8_t i, century;
+    int8_t i, century;
 
     if (t.year >= 2000) {
         century = 0x80;
@@ -80,7 +80,7 @@ void ds3231::set(){
         t.year_s = t.year - 1900;
     }
 
-    uint8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
+    int8_t TimeDate[7] = { t.sec, t.min, t.hour, t.wday, t.mday, t.mon, t.year_s };
 
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR);
