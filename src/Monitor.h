@@ -124,15 +124,19 @@ class stop_watch:public monitor
 
 class brightnes_settings:public monitor
 {
+private:
+	uint8_t crement;
 public:
-	brightnes_settings(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){}
+	brightnes_settings(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
+		crement = 5;
+	}
 
     void inc(){
-        if(brightnes<99){brightnes+=2;}
+        if(brightnes<=100-crement){brightnes+=crement;}
     }
     
     void dec(){
-        if(brightnes<=100&&brightnes>1){brightnes-=2;}
+        if(brightnes<=100&&brightnes>=crement){brightnes-=crement;}
     }
 
 	void draw()
