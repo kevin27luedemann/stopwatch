@@ -145,7 +145,7 @@ void nokia_5110::draw_ASCI(uint8_t sym,uint8_t x, uint8_t y){
 	}
 	else{
 		for(uint8_t i = 0; i < 7; i++){
-			pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |= BLACK;
+			pcd8544_buffer[x+(y/8)*LCDWIDTH+i] |= WHITE;
 		}
 	}
 }
