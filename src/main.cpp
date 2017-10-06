@@ -45,11 +45,11 @@ Input RTSW(&DDRD,&PORTD,&PIND,5,true);
 Input RTDT(&DDRD,&PORTD,&PIND,4,true);
 Input RTCLK(&DDRD,&PORTD,&PIND,3,true);
 Input SQM(&DDRB,&PORTB,&PINB,0,true);
-Input STW(&DDRC,&PORTC,&PINC,3,true);
+Input taster(&DDRC,&PORTC,&PINC,3,true);
 Input STR(&DDRC,&PORTC,&PINC,2,true);
 Spi spi;
 nokia_5110 nok(&DC,&CS,&RST,&spi);
-Input taster(&DDRD,&PORTD,&PIND,2,true);
+Input STW(&DDRD,&PORTD,&PIND,2,true);
 
 uint16_t flag_reg;
 #define DISP_UPDATE     0
@@ -75,14 +75,15 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 3
+#define numberofpages 4
 #include "Monitor.h"
 #include "INT_kernals.h"
 
 int main(void) {
     init();
 
-    monitor* mon[4] = {
+    monitor* mon[numberofpages+1] = {
+                new watch(&nok,&rtc),
                 new stop_watch(&nok,&rtc),
                 new brightnes_settings(&nok,&rtc),
                 new blank(&nok,&rtc),
@@ -93,10 +94,6 @@ int main(void) {
 
 	while(true) 
     {
-        /*
-        if(flag_reg&(1<<INCREMENT)){if(brightnes<99){brightnes+=2;}flag_reg&=~(1<<INCREMENT);}
-        else if(flag_reg&(1<<DECREMENT)){if(brightnes<=100&&brightnes>1){brightnes-=2;}flag_reg&=~(1<<DECREMENT);}
-        */
         if(flag_reg&(1<<INCREMENT)){mon[position]->inc();flag_reg&=~(1<<INCREMENT);}
         else if(flag_reg&(1<<DECREMENT)){mon[position]->dec();flag_reg&=~(1<<DECREMENT);}
         else if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
@@ -145,10 +142,12 @@ void init(){
     //fast PWM for BL
     //OCR0A  = 128;
     brightnes=100;
-    blpwm(true);
-    flag_reg |= (1<<BACKLIGHT);
+    blpwm(false);
+    //blpwm(true);
+    //flag_reg |= (1<<BACKLIGHT);
     sei();
-    position = numberofpages;
+    //position = numberofpages;
+    position = 0;
 }
 
 void blpwm(uint8_t on){

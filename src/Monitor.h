@@ -122,6 +122,34 @@ class stop_watch:public monitor
 	}
 };
 
+class watch:public monitor
+{
+	private:
+	public:
+	watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+	}
+	
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+		no->draw_number16x16((rt->t.hour/10)%10,0*numberbigsize+charsize,2*charhighte);
+		no->draw_number16x16((rt->t.hour   )%10,1*numberbigsize+charsize,2*charhighte);
+
+		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4+charsize,2*charhighte-charhighte/4*1);
+		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4+charsize,3*charhighte-charhighte/4*1);
+
+		no->draw_number16x16((rt->t.min/10)%10,2*numberbigsize+charsize+charsize,2*charhighte);
+		no->draw_number16x16((rt->t.min   )%10,3*numberbigsize+charsize+charsize,2*charhighte);
+
+		send();
+	}
+};
+
 class brightnes_settings:public monitor
 {
 private:
@@ -157,6 +185,7 @@ public:
 };
 
 const char menue_entries[][11] PROGMEM = {
+    "Watch     ",
     "Stop watch",
     "Backlight ",
     "Blank     "};
@@ -193,7 +222,7 @@ public:
 		for(uint8_t i=0;i<10;i++){
         no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[2]][i]),i*charsize+charsize,3*charhighte);}
 		no->draw_ASCI('>',0*charsize,(2)*charhighte);
-		no->draw_ASCI(posy+'0',0*charsize,(4)*charhighte);
+		//no->draw_ASCI(posy+'0',0*charsize,(4)*charhighte);
 
 		send();
 	}
