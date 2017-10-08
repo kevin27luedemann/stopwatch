@@ -53,18 +53,18 @@ Input STW(&DDRD,&PORTD,&PIND,2,true);
 
 uint16_t flag_reg;
 #define DISP_UPDATE     0
-#define DISP_UPDATE2    1
-#define BACKLIGHT       2
-#define INCREMENT       3
-#define DECREMENT       4
-#define BTN_PRESSED     5
-#define TIME_INC        6
-#define STOPWATCH       7
+#define BACKLIGHT       1
+#define INCREMENT       2
+#define DECREMENT       3
+#define BTN_PRESSED     4
+#define STOPWATCH       5
+#define STWRESET        6
+#define TIME_INC        7
 #define CLOCK_TICK      8
+#define CLORUNNING      9
 
 uint8_t brightnes;
-uint8_t seconds, minutes;
-uint16_t millise;
+ts stpwcounter;
 float batt;
 uint8_t position;
 
@@ -94,22 +94,15 @@ int main(void) {
 
 	while(true) 
     {
-        if(flag_reg&(1<<INCREMENT)){mon[position]->inc();flag_reg&=~(1<<INCREMENT);}
-        else if(flag_reg&(1<<DECREMENT)){mon[position]->dec();flag_reg&=~(1<<DECREMENT);}
-        else if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
+        if(flag_reg&(1<<INCREMENT))  {mon[position]->inc();flag_reg&=~(1<<INCREMENT);}
+        if(flag_reg&(1<<DECREMENT))  {mon[position]->dec();flag_reg&=~(1<<DECREMENT);}
+        if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
 
-        if((flag_reg&(1<<TIME_INC))){
-            seconds++;
-            if(seconds>=60){minutes++;seconds=0;}
-            flag_reg &= ~(1<<TIME_INC);
-        }
+        if(flag_reg&(1<<STOPWATCH)){mon[position]->STWbtn();flag_reg&=~(1<<STOPWATCH);}
+        if(flag_reg&(1<<STWRESET)){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
 
+        if((flag_reg&(1<<TIME_INC))){stpwcounter.inc();flag_reg&=~(1<<TIME_INC);}
         if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
-
-        if(flag_reg&(1<<BACKLIGHT)){
-            if(brightnes>100){brightnes=100;}
-            OCR0A = (uint8_t)((float)brightnes*2.55);
-        }
 
         if((flag_reg&(1<<DISP_UPDATE))){mon[position]->draw();flag_reg&=~(1<<DISP_UPDATE);}
         nachti();
@@ -121,14 +114,13 @@ void init(){
     ACSR = (1<<ACD);
     //uart_init();
     flag_reg = 0;
-    seconds = 0;
-    minutes = 0;
-    millise = 0;
 
     //seconds timer
     TIMSK1 = (1 << OCIE1A);
     OCR1A  = 57599;
     TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+
+    //Pin change interrupts
     PCMSK0 |= (1<<PCINT0 );
     PCMSK1 |= (1<<PCINT11) | (1<<PCINT10);
     PCMSK2 |= (1<<PCINT21);
@@ -143,8 +135,10 @@ void init(){
     //OCR0A  = 128;
     brightnes=100;
     blpwm(false);
+    OCR0A = (uint8_t)((float)brightnes*2.55);
     //blpwm(true);
     //flag_reg |= (1<<BACKLIGHT);
+    stpwcounter.init();
     sei();
     //position = numberofpages;
     position = 0;
@@ -163,7 +157,7 @@ void blpwm(uint8_t on){
 }
 
 void nachti(){
-    if(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<STOPWATCH)){
+    if(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING)){
         set_sleep_mode(SLEEP_MODE_IDLE);
     }
     else{

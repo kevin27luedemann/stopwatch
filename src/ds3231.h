@@ -36,8 +36,8 @@
 #include <avr/io.h>
 #include "I2C.h"
 
-class ts {
-public:
+struct ts {
+	uint16_t msec;
 	int8_t sec;
 	int8_t min;
 	int8_t hour;
@@ -59,6 +59,7 @@ public:
 				hour++;
 				if(hour>=24){
 					hour=0;
+					yday++;
 				}
 			}
 		}
@@ -73,9 +74,24 @@ public:
 				hour--;
 				if(hour<=0){
 					hour=24;
+					yday--;
 				}
 			}
 		}
+	}
+ 	
+	inline void init(){
+		msec 	= 0;
+		sec 	= 0;
+		min 	= 0;
+		hour 	= 0;
+		mday 	= 0;
+		mon 	= 0;
+		year 	= 0;
+		wday 	= 0;
+		yday    = 0;
+		isdst   = 0;
+		year_s  = 0;
 	}
 };
 

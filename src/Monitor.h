@@ -47,6 +47,14 @@ public:
         posy--;
         if(posy<0){posy=maxentries-1;}
     }
+
+	virtual void STWbtn(){
+
+	}
+
+	virtual void STRbtn(){
+
+	}
 	
 	//draw header
 	virtual void header(){
@@ -96,8 +104,32 @@ class stop_watch:public monitor
 	public:
 	stop_watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
+		maxentries = 3;
 	}
-	
+
+	void STRbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			stpwcounter.init();
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			flag_reg|=(1<<CLORUNNING);
+        	TCNT1   = 0;
+		}
+		else{
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			flag_reg &= ~(1<<CLORUNNING);
+		}
+	}
 
 	//anzeige vorbereiten
 	void draw()
@@ -105,19 +137,55 @@ class stop_watch:public monitor
 		monitor::draw();
 		header();
 		footer();
-		no->draw_number16x16((minutes/10)%10,0*numberbigsize,2*charhighte-charhighte/2);
-		no->draw_number16x16((minutes   )%10,1*numberbigsize,2*charhighte-charhighte/2);
-
-		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4,2*charhighte-charhighte/4*3);
-		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4,3*charhighte-charhighte/4*3);
-
-		no->draw_number16x16((seconds/10)%10,2*numberbigsize+charsize,2*charhighte-charhighte/2);
-		no->draw_number16x16((seconds   )%10,3*numberbigsize+charsize,2*charhighte-charhighte/2);
-
-		no->draw_ASCI('.'                    ,LCDWIDTH-4*charsize,4*charhighte-charhighte/2);
-		no->draw_ASCI('0'+(millise/100   )%10,LCDWIDTH-3*charsize,4*charhighte-charhighte/2);
-		no->draw_ASCI('0'+(millise/10    )%10,LCDWIDTH-2*charsize,4*charhighte-charhighte/2);
-		no->draw_ASCI('0'+(millise       )%10,LCDWIDTH-1*charsize,4*charhighte-charhighte/2);
+		uint16_t minu = stpwcounter.min;
+		minu += stpwcounter.hour*60;
+		switch (posy)
+		{
+			case 0:
+				if(minu>=1000){
+					no->draw_ASCI('1'                    	  ,0,4*charhighte-charhighte/2);
+				}
+				no->draw_number16x16((minu/100)%10  		  ,0*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_number16x16((minu/10)%10  			  ,1*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_number16x16((minu   )%10  			  ,2*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,3*numberbigsize+charsize/4-1,2*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,3*numberbigsize+charsize/4-1,3*charhighte-charhighte/4*3);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,3*numberbigsize+charsize-1,2*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,4*numberbigsize+charsize-1,2*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-4*charsize,4*charhighte-charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec/100   )%10,LCDWIDTH-3*charsize,4*charhighte-charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec/10    )%10,LCDWIDTH-2*charsize,4*charhighte-charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec       )%10,LCDWIDTH-1*charsize,4*charhighte-charhighte/2);
+				break;
+			case 1:
+				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,0*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,1*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI(':'                             ,2*charsize,1*charhighte+charhighte/2);
+				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
+				break;
+			case 2:
+				no->draw_ASCI('0'+(stpwcounter.yday/100 )%10  ,0*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.yday/10  )%10  ,1*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.yday     )%10  ,2*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('_'                             ,3*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,4*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,5*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI(':'                             ,6*charsize,1*charhighte+charhighte/2);
+				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
+				break;
+			default:
+				break;
+		}
 		send();
 	}
 };
@@ -130,7 +198,6 @@ class watch:public monitor
 	{
 	}
 	
-
 	//anzeige vorbereiten
 	void draw()
 	{
@@ -161,10 +228,14 @@ public:
 
     void inc(){
         if(brightnes<=100-crement){brightnes+=crement;}
+        if(brightnes>100){brightnes=100;}
+        OCR0A = (uint8_t)((float)brightnes*2.55);
     }
     
     void dec(){
         if(brightnes<=100&&brightnes>=crement){brightnes-=crement;}
+		if(brightnes>=200){brightnes=0;}
+        OCR0A = (uint8_t)((float)brightnes*2.55);
     }
 
 	void draw()
@@ -178,7 +249,7 @@ public:
 		no->draw_number16x16((brightnes/10)%10, 2*numberbigsize,1*charhighte);
 		no->draw_number16x16((brightnes)%10, 3*numberbigsize,1*charhighte);
 
-		no->drawprogress(0,charhighte*3,LCDWIDTH-1,charhighte*5-1,brightnes);
+		no->drawprogress(0,charhighte*3,LCDWIDTH-1,charhighte*5-2,brightnes);
 		send();
 	}
 
@@ -216,13 +287,12 @@ public:
             }
         }
 		for(uint8_t i=0;i<10;i++){
-        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[0]][i]),i*charsize+charsize,1*charhighte);}
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[0]][i]),i*charsize+1*charsize,1*charhighte+charhighte/4);}
 		for(uint8_t i=0;i<10;i++){
-        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[1]][i]),i*charsize+charsize,2*charhighte);}
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[1]][i]),i*charsize+2*charsize,2*charhighte+charhighte/2);}
 		for(uint8_t i=0;i<10;i++){
-        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[2]][i]),i*charsize+charsize,3*charhighte);}
-		no->draw_ASCI('>',0*charsize,(2)*charhighte);
-		//no->draw_ASCI(posy+'0',0*charsize,(4)*charhighte);
+        no->draw_ASCI(pgm_read_byte(&menue_entries[(uint8_t)places[2]][i]),i*charsize+1*charsize,4*charhighte-charhighte/4);}
+		no->draw_ASCI('>',0*charsize,(2)*charhighte+charhighte/2);
 
 		send();
 	}
