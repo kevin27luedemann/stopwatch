@@ -202,6 +202,40 @@ class stop_watch:public monitor
 	}
 };
 
+class counter:public monitor
+{
+	private:
+	public:
+    uint32_t count;
+	counter(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+        count = 0;
+	}
+
+	void STRbtn(){
+        count = 0;
+	}
+
+	void STWbtn(){
+        count++;
+        if(count>=10000){count=0;}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+        no->draw_number16x16((count/10000)%10   ,0*numberbigsize+1.5*charsize,2*charhighte);
+        no->draw_number16x16((count/100)%10     ,1*numberbigsize+1.5*charsize,2*charhighte);
+        no->draw_number16x16((count/10)%10      ,2*numberbigsize+1.5*charsize,2*charhighte);
+        no->draw_number16x16((count   )%10  	,3*numberbigsize+1.5*charsize,2*charhighte);
+
+		send();
+	}
+};
+
 class watch:public monitor
 {
 	private:
@@ -270,6 +304,7 @@ public:
 const char menue_entries[][11] PROGMEM = {
     "Watch     ",
     "Stop watch",
+    "Counter   ",
     "Backlight ",
     "Blank     "};
 class menue: public monitor

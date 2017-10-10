@@ -74,7 +74,7 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 4
+#define numberofpages 5
 #include "Monitor.h"
 #include "INT_kernals.h"
 
@@ -84,6 +84,7 @@ int main(void) {
     monitor* mon[numberofpages+1] = {
                 new watch(&nok,&rtc),
                 new stop_watch(&nok,&rtc),
+                new counter(&nok,&rtc),
                 new brightnes_settings(&nok,&rtc),
                 new blank(&nok,&rtc),
                 new menue(&nok,&rtc)
