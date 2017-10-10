@@ -55,6 +55,10 @@ public:
 	virtual void STRbtn(){
 
 	}
+
+    virtual void timer(){
+
+    }
 	
 	//draw header
 	virtual void header(){
@@ -102,9 +106,11 @@ class stop_watch:public monitor
 {
 	private:
 	public:
+    ts stpwcounter;
 	stop_watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
 		maxentries = 3;
+        stpwcounter.init();
 	}
 
 	void STRbtn(){
@@ -130,6 +136,12 @@ class stop_watch:public monitor
 			flag_reg &= ~(1<<CLORUNNING);
 		}
 	}
+
+    void timer(){
+		if((flag_reg&(1<<CLORUNNING))){
+            stpwcounter.inc();
+        }
+    }
 
 	//anzeige vorbereiten
 	void draw()

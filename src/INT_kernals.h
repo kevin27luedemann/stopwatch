@@ -1,8 +1,8 @@
 ISR(TIMER1_COMPA_vect){
-    if(flag_reg&(1<<CLORUNNING)){
-        flag_reg |= (1<<DISP_UPDATE);
-        flag_reg |= (1<<TIME_INC);
-    }
+    //if(flag_reg&(1<<CLORUNNING)){
+    //}
+    flag_reg |= (1<<DISP_UPDATE);
+    flag_reg |= (1<<TIME_INC);
 }
 
 ISR(USART_RX_vect){

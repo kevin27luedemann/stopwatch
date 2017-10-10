@@ -64,7 +64,6 @@ uint16_t flag_reg;
 #define CLORUNNING      9
 
 uint8_t brightnes;
-ts stpwcounter;
 float batt;
 uint8_t position;
 
@@ -101,7 +100,7 @@ int main(void) {
         if(flag_reg&(1<<STOPWATCH)){mon[position]->STWbtn();flag_reg&=~(1<<STOPWATCH);}
         if(flag_reg&(1<<STWRESET)){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
 
-        if((flag_reg&(1<<TIME_INC))){stpwcounter.inc();flag_reg&=~(1<<TIME_INC);}
+        if((flag_reg&(1<<TIME_INC))){mon[position]->timer();flag_reg&=~(1<<TIME_INC);}
         if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
 
         if((flag_reg&(1<<DISP_UPDATE))){mon[position]->draw();flag_reg&=~(1<<DISP_UPDATE);}
@@ -138,7 +137,6 @@ void init(){
     OCR0A = (uint8_t)((float)brightnes*2.55);
     //blpwm(true);
     //flag_reg |= (1<<BACKLIGHT);
-    stpwcounter.init();
     sei();
     //position = numberofpages;
     position = 0;
