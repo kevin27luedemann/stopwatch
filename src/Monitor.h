@@ -105,8 +105,18 @@ public:
 class stop_watch:public monitor
 {
 	private:
+    void cl_timer(uint8_t on){
+        if(on){
+            TIMSK1 = (1 << OCIE1A);
+            OCR1A  = 57599;
+            TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+        	TCNT1   = 0;
+        }
+        else{
+            TCCR1B &= ~((1 << WGM12) | (1<<CS11) | (1<<CS10));
+        }
+    }
 	public:
-    ts stpwcounter;
 	stop_watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
 		maxentries = 3;
@@ -122,7 +132,7 @@ class stop_watch:public monitor
 	void STWbtn(){
 		if(!(flag_reg&(1<<CLORUNNING))){
 			flag_reg|=(1<<CLORUNNING);
-        	TCNT1   = 0;
+            cl_timer(true);
 		}
 		else{
 			uint32_t temp1 = TCNT1;
@@ -134,14 +144,9 @@ class stop_watch:public monitor
 				stpwcounter.msec-=1000;
 		   	}
 			flag_reg &= ~(1<<CLORUNNING);
+            cl_timer(false);
 		}
 	}
-
-    void timer(){
-		if((flag_reg&(1<<CLORUNNING))){
-            stpwcounter.inc();
-        }
-    }
 
 	//anzeige vorbereiten
 	void draw()

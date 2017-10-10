@@ -64,6 +64,7 @@ uint16_t flag_reg;
 #define CLORUNNING      9
 
 uint8_t brightnes;
+ts stpwcounter;
 float batt;
 uint8_t position;
 
@@ -75,6 +76,11 @@ void blpwm(uint8_t on);
 float get_voltage();
 
 #define numberofpages 5
+#define MO_WATCH        0
+#define MO_STOP_WATCH   1
+#define MO_COUNTER      2
+#define MO_BRIGTHNES    3
+#define MO_BLANK        4
 #include "Monitor.h"
 #include "INT_kernals.h"
 
@@ -101,7 +107,11 @@ int main(void) {
         if(flag_reg&(1<<STOPWATCH)){mon[position]->STWbtn();flag_reg&=~(1<<STOPWATCH);}
         if(flag_reg&(1<<STWRESET)){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
 
-        if((flag_reg&(1<<TIME_INC))){mon[position]->timer();flag_reg&=~(1<<TIME_INC);}
+        if((flag_reg&(1<<TIME_INC))){
+            if((flag_reg&(1<<CLORUNNING))){stpwcounter.inc();}
+            mon[position]->timer();
+            flag_reg&=~(1<<TIME_INC);
+        }
         if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
 
         if((flag_reg&(1<<DISP_UPDATE))){mon[position]->draw();flag_reg&=~(1<<DISP_UPDATE);}
@@ -116,9 +126,6 @@ void init(){
     flag_reg = 0;
 
     //seconds timer
-    TIMSK1 = (1 << OCIE1A);
-    OCR1A  = 57599;
-    TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
 
     //Pin change interrupts
     PCMSK0 |= (1<<PCINT0 );
