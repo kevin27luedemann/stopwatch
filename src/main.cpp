@@ -112,7 +112,12 @@ int main(void) {
         }
         if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
 
-        if((flag_reg&(1<<DISP_UPDATE))){mon[position]->draw();flag_reg&=~(1<<DISP_UPDATE);}
+        if((flag_reg&(1<<DISP_UPDATE))){
+            batt = get_voltage();
+            batt /= TEILER;
+            mon[position]->draw();
+            flag_reg&=~(1<<DISP_UPDATE);
+        }
         nachti();
 	}
     return 0;

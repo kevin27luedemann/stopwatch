@@ -71,9 +71,10 @@ public:
 		no->draw_ASCI('0'+rt->t.sec/10%10 ,6*charsize,0);
 		no->draw_ASCI('0'+rt->t.sec%10    ,7*charsize,0);
 	
-		no->draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-4*charsize,0);
-		no->draw_ASCI('.'                           ,LCDWIDTH-3*charsize,0);
-		no->draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-2*charsize,0);
+		no->draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-5*charsize,0);
+		no->draw_ASCI('.'                           ,LCDWIDTH-4*charsize,0);
+		no->draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-3*charsize,0);
+		no->draw_ASCI('0'+((uint8_t)(batt*100))%10  ,LCDWIDTH-2*charsize,0);
 		no->draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
 	}
 	
@@ -92,8 +93,6 @@ public:
 	//drawfunktion
 	virtual void draw(){
     	no->clearDisplay();
-        batt = get_voltage();
-        batt /= TEILER;
 	}
 
 	//send the frame to the display
