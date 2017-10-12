@@ -350,17 +350,4 @@ public:
 	}
 };
 
-class blank:public monitor
-{
-public:
-	blank(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
-    }
-
-	void draw()
-	{
-		monitor::draw();
-		send();
-	}
-};
-
 #endif /* MONITOR_H_ */

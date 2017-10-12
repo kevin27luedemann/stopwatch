@@ -75,12 +75,11 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 5
+#define numberofpages 4
 #define MO_WATCH        0
 #define MO_STOP_WATCH   1
 #define MO_COUNTER      2
 #define MO_BRIGTHNES    3
-#define MO_BLANK        4
 #include "Monitor.h"
 #include "INT_kernals.h"
 
@@ -92,7 +91,6 @@ int main(void) {
                 new stop_watch(&nok,&rtc),
                 new counter(&nok,&rtc),
                 new brightnes_settings(&nok,&rtc),
-                new blank(&nok,&rtc),
                 new menue(&nok,&rtc)
                 };
 
