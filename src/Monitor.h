@@ -71,11 +71,12 @@ public:
 		no->draw_ASCI('0'+rt->t.sec/10%10 ,6*charsize,0);
 		no->draw_ASCI('0'+rt->t.sec%10    ,7*charsize,0);
 	
-		no->draw_ASCI('0'+((uint8_t)(batt))%10      ,LCDWIDTH-5*charsize,0);
-		no->draw_ASCI('.'                           ,LCDWIDTH-4*charsize,0);
-		no->draw_ASCI('0'+((uint8_t)(batt*10))%10   ,LCDWIDTH-3*charsize,0);
-		no->draw_ASCI('0'+((uint8_t)(batt*100))%10  ,LCDWIDTH-2*charsize,0);
-		no->draw_ASCI('V'                           ,LCDWIDTH-1*charsize,0);
+		batt -= 0.06;
+		no->draw_ASCI('0'+uint16_t(batt)%10      ,LCDWIDTH-5*charsize,0);
+		no->draw_ASCI('.'                        ,LCDWIDTH-4*charsize,0);
+		no->draw_ASCI('0'+uint32_t(batt*10.0)%10 ,LCDWIDTH-3*charsize,0);
+		no->draw_ASCI('0'+uint32_t(batt*100.0)%10,LCDWIDTH-2*charsize,0);
+		no->draw_ASCI('V'                        ,LCDWIDTH-1*charsize,0);
 	}
 	
 	//draw footer
