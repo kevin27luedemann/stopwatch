@@ -390,21 +390,15 @@ class stop_watch:public monitor
 class counter:public monitor
 {
 	private:
-	struct cou {
-		int c;
-		inline void inc(){c++;}
-		inline void dec(){c--;}
-		inline void init(){c = 0;}
-	};
 	public:
-	cou *c;
+	int16_t *c;
 	uint8_t dele;
 	counter(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
 		maxentries = 4+1;
 		dele = 0;
-		c = new cou[maxentries-1];
-		for(uint8_t i=0;i<maxentries-1;i++){c[i].init();}
+		c = new int16_t[maxentries-1];
+		for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
 	}
 
 	void STRbtn(){
@@ -413,18 +407,18 @@ class counter:public monitor
 			if(dele==2){dele=0;}
 		}
 		else{
-			c[posy].dec();
+			c[posy]--;
 		}
 	}
 
 	void STWbtn(){
 		if(posy == maxentries-1 && dele >= 1){
 			dele = 0;	
-			for(uint8_t i=0;i<maxentries-1;i++){c[i].init();}
+			for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
 			posy = 0;
 		}
 		else{
-			c[posy].inc();
+			c[posy]++;
 		}
 	}
 
@@ -477,13 +471,13 @@ class counter:public monitor
 		else{
 			no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
 			no->draw_ASCI(':'     ,1*charsize,1*charhighte);
-			if(c[posy].c < 0){
+			if(c[posy] < 0){
 				no->draw_ASCI('-'     ,0.5*charsize,2.5*charhighte);
 			}
-			no->draw_number16x16(abs(c[posy].c/10000)%10,0*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy].c/100  )%10,1*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy].c/10   )%10,2*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy].c      )%10,3*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/10000)%10,0*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/100  )%10,1*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/10   )%10,2*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy]      )%10,3*numberbigsize+1.5*charsize,2*charhighte);
 		}
 
 		send();
