@@ -102,6 +102,202 @@ public:
 	}
 };
 
+class round_mode:public monitor
+{
+	private:
+    void cl_timer(uint8_t on){
+        if(on){
+            TIMSK1 = (1 << OCIE1A);
+            OCR1A  = 57599;
+            TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+        	TCNT1   = 0;
+        }
+        else{
+            TCCR1B &= ~((1 << WGM12) | (1<<CS11) | (1<<CS10));
+        }
+    }
+	public:
+	stts last_round;
+	round_mode(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+		last_round.init();
+	}
+
+	void STRbtn(){
+		if((flag_reg&(1<<CLORUNNING))){
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			last_round.msec = stpwcounter.msec;
+			last_round.sec  = stpwcounter.sec;
+			last_round.min  = stpwcounter.min;
+			last_round.hour = stpwcounter.hour;
+			TCNT1 = 0;
+			stpwcounter.init();
+		}
+		else{
+			last_round.init();
+			stpwcounter.init();
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			flag_reg|=(1<<CLORUNNING);
+            cl_timer(true);
+		}
+		else{
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			flag_reg &= ~(1<<CLORUNNING);
+            cl_timer(false);
+		}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+
+		no->draw_ASCI('0'+(last_round.hour/10  )%10,1*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.hour     )%10,2*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                          ,3*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.min/10)%10   ,4*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.min   )%10   ,5*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                    	   ,6*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.sec/10)%10   ,7*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.sec   )%10   ,8*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                    	   ,9*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.msec/100)%10 ,10*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.msec/10 )%10 ,11*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_round.msec    )%10 ,12*charsize,1.5*charhighte);
+
+		no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                           ,3*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,4*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.min   )%10   ,5*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                    		,6*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,7*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,8*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                    	    ,9*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec/100)%10 ,10*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec/10 )%10 ,11*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec    )%10 ,12*charsize,3.5*charhighte);
+		send();
+	}
+};
+
+class split_mode:public monitor
+{
+	private:
+    void cl_timer(uint8_t on){
+        if(on){
+            TIMSK1 = (1 << OCIE1A);
+            OCR1A  = 57599;
+            TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+        	TCNT1   = 0;
+        }
+        else{
+            TCCR1B &= ~((1 << WGM12) | (1<<CS11) | (1<<CS10));
+        }
+    }
+	public:
+	stts last_split;
+	split_mode(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+		last_split.init();
+	}
+
+	void STRbtn(){
+		if((flag_reg&(1<<CLORUNNING))){
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			last_split.msec = stpwcounter.msec;
+			last_split.sec  = stpwcounter.sec;
+			last_split.min  = stpwcounter.min;
+			last_split.hour = stpwcounter.hour;
+		}
+		else{
+			last_split.init();
+			stpwcounter.init();
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			flag_reg|=(1<<CLORUNNING);
+            cl_timer(true);
+		}
+		else{
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			flag_reg &= ~(1<<CLORUNNING);
+            cl_timer(false);
+		}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+
+		no->draw_ASCI('0'+(last_split.hour/10  )%10,1*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.hour     )%10,2*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                          ,3*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.min/10)%10   ,4*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.min   )%10   ,5*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                    	   ,6*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.sec/10)%10   ,7*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.sec   )%10   ,8*charsize,1.5*charhighte);
+		no->draw_ASCI(':'                    	   ,9*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.msec/100)%10 ,10*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.msec/10 )%10 ,11*charsize,1.5*charhighte);
+		no->draw_ASCI('0'+(last_split.msec    )%10 ,12*charsize,1.5*charhighte);
+
+		no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                           ,3*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,4*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.min   )%10   ,5*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                    		,6*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,7*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,8*charsize,3.5*charhighte);
+		no->draw_ASCI(':'                    	    ,9*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec/100)%10 ,10*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec/10 )%10 ,11*charsize,3.5*charhighte);
+		no->draw_ASCI('0'+(stpwcounter.msec    )%10 ,12*charsize,3.5*charhighte);
+		send();
+	}
+};
+
 class stop_watch:public monitor
 {
 	private:
@@ -120,7 +316,6 @@ class stop_watch:public monitor
 	stop_watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
 		maxentries = 2;
-        stpwcounter.init();
 	}
 
 	void STRbtn(){
@@ -363,6 +558,8 @@ public:
 const char menue_entries[][11] PROGMEM = {
     "Watch     ",
     "Stop watch",
+    "Split     ",
+    "Round     ",
     "Counter   ",
     "Backlight ",
     "Blank     "};

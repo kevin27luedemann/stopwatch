@@ -83,11 +83,13 @@ void nachti();
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 4
+#define numberofpages 6
 #define MO_WATCH        0
 #define MO_STOP_WATCH   1
-#define MO_COUNTER      2
-#define MO_BRIGTHNES    3
+#define MO_SPLIT        2
+#define MO_ROUND        3
+#define MO_COUNTER      4
+#define MO_BRIGTHNES    5
 #include "Monitor.h"
 #include "INT_kernals.h"
 
@@ -97,6 +99,8 @@ int main(void) {
     monitor* mon[numberofpages+1] = {
                 new watch(&nok,&rtc),
                 new stop_watch(&nok,&rtc),
+                new split_mode(&nok,&rtc),
+                new round_mode(&nok,&rtc),
                 new counter(&nok,&rtc),
                 new brightnes_settings(&nok,&rtc),
                 new menue(&nok,&rtc)
@@ -159,6 +163,7 @@ void init(){
     sei();
     //position = numberofpages;
     position = 0;
+    stpwcounter.init();
 }
 
 void blpwm(uint8_t on){
