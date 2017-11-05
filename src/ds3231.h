@@ -37,7 +37,6 @@
 #include "I2C.h"
 
 struct ts {
-	uint16_t msec;
 	int8_t sec;
 	int8_t min;
 	int8_t hour;
@@ -49,6 +48,26 @@ struct ts {
 	int8_t isdst;
 	int8_t year_s;
 
+	inline void init(){
+		sec 	= 0;
+		min 	= 0;
+		hour 	= 0;
+		mday 	= 0;
+		mon 	= 0;
+		year 	= 0;
+		wday 	= 0;
+		yday    = 0;
+		isdst   = 0;
+		year_s  = 0;
+	}
+};
+
+struct stts {
+	uint16_t msec;
+	int8_t sec;
+	int8_t min;
+	int8_t hour;
+
 	inline void inc(){
 		sec++;
 		if(sec>=60){
@@ -59,7 +78,6 @@ struct ts {
 				hour++;
 				if(hour>=24){
 					hour=0;
-					yday++;
 				}
 			}
 		}
@@ -72,10 +90,6 @@ struct ts {
 			if(min<=0){
 				min=60;
 				hour--;
-				if(hour<=0){
-					hour=24;
-					yday--;
-				}
 			}
 		}
 	}
@@ -85,13 +99,6 @@ struct ts {
 		sec 	= 0;
 		min 	= 0;
 		hour 	= 0;
-		mday 	= 0;
-		mon 	= 0;
-		year 	= 0;
-		wday 	= 0;
-		yday    = 0;
-		isdst   = 0;
-		year_s  = 0;
 	}
 };
 
