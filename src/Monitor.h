@@ -119,7 +119,7 @@ class stop_watch:public monitor
 	public:
 	stop_watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
-		maxentries = 3;
+		maxentries = 2;
         stpwcounter.init();
 	}
 
@@ -185,21 +185,6 @@ class stop_watch:public monitor
 				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
 				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
 				break;
-			case 2:
-				no->draw_ASCI('0'+(stpwcounter.yday/100 )%10  ,0*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('0'+(stpwcounter.yday/10  )%10  ,1*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('0'+(stpwcounter.yday     )%10  ,2*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('_'                             ,3*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,4*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,5*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI(':'                             ,6*charsize,1*charhighte+charhighte/2);
-				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
-				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
-				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
-				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
-				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
-				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
-				break;
 			default:
 				break;
 		}
@@ -210,20 +195,42 @@ class stop_watch:public monitor
 class counter:public monitor
 {
 	private:
+	struct cou {
+		int c;
+		inline void inc(){c++;}
+		inline void dec(){c--;}
+		inline void init(){c = 0;}
+	};
 	public:
-    uint32_t count;
+	cou *c;
+	uint8_t dele;
 	counter(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
-        count = 0;
+		maxentries = 4+1;
+		dele = 0;
+		c = new cou[maxentries-1];
+		for(uint8_t i=0;i<maxentries-1;i++){c[i].init();}
 	}
 
 	void STRbtn(){
-        count = 0;
+		if(posy == maxentries-1){
+			dele++;
+			if(dele==2){dele=0;}
+		}
+		else{
+			c[posy].dec();
+		}
 	}
 
 	void STWbtn(){
-        count++;
-        if(count>=10000){count=0;}
+		if(posy == maxentries-1 && dele >= 1){
+			dele = 0;	
+			for(uint8_t i=0;i<maxentries-1;i++){c[i].init();}
+			posy = 0;
+		}
+		else{
+			c[posy].inc();
+		}
 	}
 
 	//anzeige vorbereiten
@@ -232,10 +239,57 @@ class counter:public monitor
 		monitor::draw();
 		header();
 		footer();
-        no->draw_number16x16((count/10000)%10   ,0*numberbigsize+1.5*charsize,2*charhighte);
-        no->draw_number16x16((count/100)%10     ,1*numberbigsize+1.5*charsize,2*charhighte);
-        no->draw_number16x16((count/10)%10      ,2*numberbigsize+1.5*charsize,2*charhighte);
-        no->draw_number16x16((count   )%10  	,3*numberbigsize+1.5*charsize,2*charhighte);
+		if(posy == maxentries-1){
+			if(dele == 0){
+				no->draw_ASCI('D',1*charsize,2*charhighte);
+				no->draw_ASCI('e',2*charsize,2*charhighte);
+				no->draw_ASCI('l',3*charsize,2*charhighte);
+				no->draw_ASCI('e',4*charsize,2*charhighte);
+				no->draw_ASCI('t',5*charsize,2*charhighte);
+				no->draw_ASCI('e',6*charsize,2*charhighte);
+				no->draw_ASCI(' ',7*charsize,2*charhighte);
+				no->draw_ASCI('A',8*charsize,2*charhighte);
+				no->draw_ASCI('l',9*charsize,2*charhighte);
+				no->draw_ASCI('l',10*charsize,2*charhighte);
+				no->draw_ASCI('?',11*charsize,2*charhighte);
+
+				no->draw_ASCI('H',1*charsize,3*charhighte);
+				no->draw_ASCI('i',2*charsize,3*charhighte);
+				no->draw_ASCI('t',3*charsize,3*charhighte);
+				no->draw_ASCI(' ',4*charsize,3*charhighte);
+				no->draw_ASCI('S',5*charsize,3*charhighte);
+				no->draw_ASCI('T',6*charsize,3*charhighte);
+				no->draw_ASCI('R',7*charsize,3*charhighte);
+				no->draw_ASCI('!',8*charsize,3*charhighte);
+			}
+			else{
+				no->draw_ASCI('S',1*charsize,2*charhighte);
+				no->draw_ASCI('u',2*charsize,2*charhighte);
+				no->draw_ASCI('r',3*charsize,2*charhighte);
+				no->draw_ASCI('e',4*charsize,2*charhighte);
+				no->draw_ASCI('?',5*charsize,2*charhighte);
+
+				no->draw_ASCI('H',1*charsize,3*charhighte);
+				no->draw_ASCI('i',2*charsize,3*charhighte);
+				no->draw_ASCI('t',3*charsize,3*charhighte);
+				no->draw_ASCI(' ',4*charsize,3*charhighte);
+				no->draw_ASCI('S',5*charsize,3*charhighte);
+				no->draw_ASCI('T',6*charsize,3*charhighte);
+				no->draw_ASCI('W',7*charsize,3*charhighte);
+				no->draw_ASCI('!',8*charsize,3*charhighte);
+			}
+		}
+		else{
+			no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
+			no->draw_ASCI(':'     ,1*charsize,1*charhighte);
+			if(c[posy].c < 0){
+				no->draw_ASCI('-'     ,0.5*charsize,2.5*charhighte);
+			}
+			no->draw_number16x16(abs(c[posy].c/10000)%10,0*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy].c/100  )%10,1*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy].c/10   )%10,2*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy].c      )%10,3*numberbigsize+1.5*charsize,2*charhighte);
+		}
 
 		send();
 	}

@@ -29,7 +29,15 @@ void * operator new(size_t size)
 {
 	return malloc(size);
 }
+void * operator new[](size_t size)
+{
+	return malloc(size);
+}
 void operator delete(void * ptr)
+{
+	free(ptr);
+}
+void operator delete[](void * ptr)
 {
 	free(ptr);
 }
@@ -64,7 +72,7 @@ uint16_t flag_reg;
 #define CLORUNNING      9
 
 uint8_t brightnes;
-ts stpwcounter;
+stts stpwcounter;
 float batt;
 uint8_t position;
 
@@ -143,7 +151,7 @@ void init(){
 
     //fast PWM for BL
     //OCR0A  = 128;
-    brightnes=100;
+    brightnes=50;
     blpwm(false);
     OCR0A = (uint8_t)((float)brightnes*2.55);
     //blpwm(true);

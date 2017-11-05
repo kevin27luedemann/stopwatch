@@ -32,13 +32,14 @@ ISR(INT0_vect){
 }
 
 ISR(INT1_vect){
+    asm("nop");
     if(RTDT.ison()){
-        flag_reg |= (1<<INCREMENT);
+        flag_reg |= (1<<INCREMENT) | (1<<DISP_UPDATE);
     }
     else{
-        flag_reg |= (1<<DECREMENT);
+        flag_reg |= (1<<DECREMENT) | (1<<DISP_UPDATE);
     }
-    flag_reg |= (1<<DISP_UPDATE);
+    //flag_reg |= (1<<DISP_UPDATE);
 }
 
 ISR(PCINT0_vect){
