@@ -155,7 +155,7 @@ void init(){
 
     //fast PWM for BL
     //OCR0A  = 128;
-    brightnes=50;
+    brightnes=30;
     blpwm(false);
     OCR0A = (uint8_t)((float)brightnes*2.55);
     //blpwm(true);
