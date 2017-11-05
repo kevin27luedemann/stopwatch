@@ -32,7 +32,7 @@ ISR(INT0_vect){
 }
 
 ISR(INT1_vect){
-    asm("nop");
+    asm volatile("nop");
     if(RTDT.ison()){
         flag_reg |= (1<<INCREMENT) | (1<<DISP_UPDATE);
     }
