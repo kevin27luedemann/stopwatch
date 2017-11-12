@@ -79,7 +79,7 @@ uint8_t position;
 void init();
 void update_disp();
 void update_disp2();
-void nachti();
+void nachti(uint8_t light);
 void blpwm(uint8_t on);
 float get_voltage();
 
@@ -115,7 +115,7 @@ int main(void) {
         if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
 
         if(flag_reg&(1<<STOPWATCH)){mon[position]->STWbtn();flag_reg&=~(1<<STOPWATCH);}
-        if(flag_reg&(1<<STWRESET)){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
+        if(flag_reg&(1<<STWRESET )){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
 
         if((flag_reg&(1<<TIME_INC))){
             if((flag_reg&(1<<CLORUNNING))){stpwcounter.inc();}
@@ -130,7 +130,7 @@ int main(void) {
             mon[position]->draw();
             flag_reg&=~(1<<DISP_UPDATE);
         }
-        nachti();
+        nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING) || position!=MO_WATCH || position!=MO_COUNTER);
 	}
     return 0;
 }
@@ -178,8 +178,9 @@ void blpwm(uint8_t on){
     }
 }
 
-void nachti(){
-    if(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING)){
+void nachti(uint8_t light){
+    //if(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING)){
+    if(light){
         set_sleep_mode(SLEEP_MODE_IDLE);
     }
     else{
