@@ -70,6 +70,7 @@ uint16_t flag_reg;
 #define TIME_INC        7
 #define CLOCK_TICK      8
 #define CLORUNNING      9
+#define CLOCKWATCH      10
 
 uint8_t brightnes;
 stts stpwcounter;
@@ -83,13 +84,14 @@ void nachti(uint8_t light);
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 6
+#define numberofpages 7
 #define MO_WATCH        0
 #define MO_STOP_WATCH   1
-#define MO_SPLIT        2
-#define MO_ROUND        3
-#define MO_COUNTER      4
-#define MO_BRIGTHNES    5
+#define MO_CLOCK_WATCH  2
+#define MO_SPLIT        3
+#define MO_ROUND        4
+#define MO_COUNTER      5
+#define MO_BRIGTHNES    6
 #include "Monitor.h"
 #include "INT_kernals.h"
 
@@ -99,6 +101,7 @@ int main(void) {
     monitor* mon[numberofpages+1] = {
                 new watch(&nok,&rtc),
                 new stop_watch(&nok,&rtc),
+                new stop_clock(&nok,&rtc),
                 new split_mode(&nok,&rtc),
                 new round_mode(&nok,&rtc),
                 new counter(&nok,&rtc),
@@ -122,7 +125,11 @@ int main(void) {
             mon[position]->timer();
             flag_reg&=~(1<<TIME_INC);
         }
-        if(flag_reg&(1<<CLOCK_TICK)){rtc.get();flag_reg&=~(1<<CLOCK_TICK);}
+        if(flag_reg&(1<<CLOCK_TICK)){
+            rtc.get();
+            if(flag_reg&(1<<CLOCKWATCH)){stpwcounter.inc();}
+            flag_reg&=~(1<<CLOCK_TICK);
+        }
 
         if((flag_reg&(1<<DISP_UPDATE))){
             batt = get_voltage();

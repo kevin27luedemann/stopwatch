@@ -44,7 +44,9 @@ ISR(INT1_vect){
 }
 
 ISR(PCINT0_vect){
-    flag_reg |= (1<<CLOCK_TICK) | (1<<DISP_UPDATE);
+    if(SQM.ison()){
+        flag_reg |= (1<<CLOCK_TICK) | (1<<DISP_UPDATE);
+    }
 }
 
 ISR(PCINT1_vect){

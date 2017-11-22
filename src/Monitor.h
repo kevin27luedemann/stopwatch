@@ -298,6 +298,70 @@ class split_mode:public monitor
 	}
 };
 
+class stop_clock:public monitor
+{
+	private:
+	public:
+	stop_clock(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+		maxentries = 2;
+	}
+
+	void STRbtn(){
+		if(!(flag_reg&(1<<CLOCKWATCH))){
+			stpwcounter.init();
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLOCKWATCH))){
+			flag_reg |= (1<<CLOCKWATCH);
+		}
+		else{
+			flag_reg &= ~(1<<CLOCKWATCH);
+		}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+		uint16_t minu = stpwcounter.min;
+		minu += stpwcounter.hour*60;
+		switch (posy)
+		{
+			case 0:
+				if(minu>=1000){
+					no->draw_ASCI('1'                    	  ,0,4*charhighte-charhighte/2);
+				}
+				no->draw_number16x16((minu/100)%10  		  ,0*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_number16x16((minu/10)%10  			  ,1*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_number16x16((minu   )%10  			  ,2*numberbigsize,2*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,3*numberbigsize+charsize/4-1,2*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,3*numberbigsize+charsize/4-1,3*charhighte-charhighte/4*3);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,3*numberbigsize+charsize-1,2*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,4*numberbigsize+charsize-1,2*charhighte-charhighte/2);
+				break;
+			case 1:
+				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,0*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,1*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI(':'                             ,2*charsize,1*charhighte+charhighte/2);
+				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
+				break;
+			default:
+				break;
+		}
+		send();
+	}
+};
+
 class stop_watch:public monitor
 {
 	private:
@@ -552,6 +616,7 @@ public:
 const char menue_entries[][11] PROGMEM = {
     "Watch     ",
     "Stop watch",
+    "Stop clock",
     "Split     ",
     "Round     ",
     "Counter   ",
