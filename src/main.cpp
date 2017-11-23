@@ -128,11 +128,11 @@ int main(void) {
             rtc.get();
             if(flag_reg&(1<<CLOCKWATCH)){stpwcounter.inc();}
             flag_reg&=~(1<<CLOCK_TICK);
+            batt = get_voltage();
+            batt /= TEILER;
         }
 
         if((flag_reg&(1<<DISP_UPDATE))){
-            batt = get_voltage();
-            batt /= TEILER;
             mon[position]->draw();
             flag_reg&=~(1<<DISP_UPDATE);
         }
