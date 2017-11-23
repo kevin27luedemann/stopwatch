@@ -93,32 +93,31 @@ float get_voltage();
 #define MO_COUNTER      5
 #define MO_BRIGTHNES    6
 #include "Monitor.h"
+monitor* mon[numberofpages+1] = {
+            new watch(&nok,&rtc),
+            new stop_watch(&nok,&rtc),
+            new stop_clock(&nok,&rtc),
+            new split_mode(&nok,&rtc),
+            new round_mode(&nok,&rtc),
+            new counter(&nok,&rtc),
+            new brightnes_settings(&nok,&rtc),
+            new menue(&nok,&rtc)
+            };
 #include "INT_kernals.h"
 
 int main(void) {
     init();
 
-    monitor* mon[numberofpages+1] = {
-                new watch(&nok,&rtc),
-                new stop_watch(&nok,&rtc),
-                new stop_clock(&nok,&rtc),
-                new split_mode(&nok,&rtc),
-                new round_mode(&nok,&rtc),
-                new counter(&nok,&rtc),
-                new brightnes_settings(&nok,&rtc),
-                new menue(&nok,&rtc)
-                };
-
     mon[position]->draw();
 
 	while(true) 
     {
-        if(flag_reg&(1<<INCREMENT))  {mon[position]->inc();flag_reg&=~(1<<INCREMENT);}
-        if(flag_reg&(1<<DECREMENT))  {mon[position]->dec();flag_reg&=~(1<<DECREMENT);}
-        if(flag_reg&(1<<BTN_PRESSED)){mon[position]->btn();flag_reg&=~(1<<BTN_PRESSED);}
+        if(flag_reg&(1<<INCREMENT))  {flag_reg&=~(1<<INCREMENT);}
+        if(flag_reg&(1<<DECREMENT))  {flag_reg&=~(1<<DECREMENT);}
+        if(flag_reg&(1<<BTN_PRESSED)){flag_reg&=~(1<<BTN_PRESSED);}
 
-        if(flag_reg&(1<<STOPWATCH)){mon[position]->STWbtn();flag_reg&=~(1<<STOPWATCH);}
-        if(flag_reg&(1<<STWRESET )){mon[position]->STRbtn();flag_reg&=~(1<<STWRESET);}
+        if(flag_reg&(1<<STOPWATCH)){flag_reg&=~(1<<STOPWATCH);}
+        if(flag_reg&(1<<STWRESET )){flag_reg&=~(1<<STWRESET);}
 
         if((flag_reg&(1<<TIME_INC))){
             if((flag_reg&(1<<CLORUNNING))){stpwcounter.inc();}
