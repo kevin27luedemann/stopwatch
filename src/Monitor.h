@@ -71,7 +71,6 @@ public:
 		no->draw_ASCI('0'+rt->t.sec/10%10 ,6*charsize,0);
 		no->draw_ASCI('0'+rt->t.sec%10    ,7*charsize,0);
 	
-		batt -= 0.06;
 		no->draw_ASCI('0'+uint16_t(batt)%10      ,LCDWIDTH-5*charsize,0);
 		no->draw_ASCI('.'                        ,LCDWIDTH-4*charsize,0);
 		no->draw_ASCI('0'+uint32_t(batt*10.0)%10 ,LCDWIDTH-3*charsize,0);
@@ -581,7 +580,7 @@ private:
 	uint8_t crement;
 public:
 	brightnes_settings(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
-		crement = 5;
+		crement = 2;
 	}
 
     void inc(){

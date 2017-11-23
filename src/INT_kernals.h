@@ -37,11 +37,11 @@ ISR(INT1_vect){
     asm volatile("nop");
     if(RTDT.ison()){
         flag_reg |= (1<<INCREMENT) | (1<<DISP_UPDATE);
-	mon[position]->inc();
+	    mon[position]->inc();
     }
     else{
         flag_reg |= (1<<DECREMENT) | (1<<DISP_UPDATE);
-	mon[position]->dec();
+	    mon[position]->dec();
     }
     //flag_reg |= (1<<DISP_UPDATE);
 }

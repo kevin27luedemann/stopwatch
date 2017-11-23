@@ -127,9 +127,10 @@ int main(void) {
         if(flag_reg&(1<<CLOCK_TICK)){
             rtc.get();
             if(flag_reg&(1<<CLOCKWATCH)){stpwcounter.inc();}
-            flag_reg&=~(1<<CLOCK_TICK);
             batt = get_voltage();
             batt /= TEILER;
+		    batt -= 0.06;
+            flag_reg&=~(1<<CLOCK_TICK);
         }
 
         if((flag_reg&(1<<DISP_UPDATE))){
