@@ -137,7 +137,9 @@ int main(void) {
             mon[position]->draw();
             flag_reg&=~(1<<DISP_UPDATE);
         }
-        nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING) || position!=MO_WATCH || position!=MO_COUNTER || position!=MO_CLOCK_WATCH);
+        if(!(flag_reg&(1<<DISP_UPDATE))){
+            nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING) || position!=MO_WATCH || position!=MO_COUNTER || position!=MO_CLOCK_WATCH);
+        }
 	}
     return 0;
 }
