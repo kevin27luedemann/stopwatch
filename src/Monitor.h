@@ -580,7 +580,7 @@ private:
 	uint8_t crement;
 public:
 	brightnes_settings(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt){
-		crement = 2;
+		crement = 5;
 	}
 
     void inc(){

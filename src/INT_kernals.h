@@ -29,7 +29,6 @@ ISR(INT0_vect){
     }
     */
     flag_reg |= (1<<DISP_UPDATE) | (1<<STOPWATCH);
-    mon[position]->STWbtn();
 }
 
 ISR(INT1_vect){
@@ -37,11 +36,9 @@ ISR(INT1_vect){
     asm volatile("nop");
     if(RTDT.ison()){
         flag_reg |= (1<<INCREMENT) | (1<<DISP_UPDATE);
-	    mon[position]->inc();
     }
     else{
         flag_reg |= (1<<DECREMENT) | (1<<DISP_UPDATE);
-	    mon[position]->dec();
     }
     //flag_reg |= (1<<DISP_UPDATE);
 }
@@ -66,11 +63,10 @@ ISR(PCINT1_vect){
 
     if(STR.ison()){
         flag_reg |= (1<<STWRESET);
-	mon[position]->STRbtn();
     }
     flag_reg |= (1<<DISP_UPDATE);
 }
 
 ISR(PCINT2_vect){
-    if(RTSW.ison()){flag_reg |= (1<<DISP_UPDATE) | (1<<BTN_PRESSED);mon[position]->btn();}
+    if(RTSW.ison()){flag_reg |= (1<<DISP_UPDATE) | (1<<BTN_PRESSED);}
 }
