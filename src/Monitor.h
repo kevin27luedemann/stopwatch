@@ -147,6 +147,19 @@ class stop_clock:public monitor
 		}
 		else{
 			flag_reg &= ~(1<<CLOCKWATCH);
+			last_round.init();
+			last_round.sec = stpwcounter.sec  - last_split.sec;
+			if(last_round.sec < 0){
+				last_round.min--;
+				last_round.sec += 60;
+			}
+			last_round.min += stpwcounter.min  - last_split.min;
+			if(last_round.min < 0){
+				last_round.hour--;
+				last_round.min += 60;
+			}
+			last_round.hour += stpwcounter.hour - last_split.hour;
+			
 		}
 	}
 
@@ -285,6 +298,24 @@ class stop_watch:public monitor
 		   	}
 			flag_reg &= ~(1<<CLORUNNING);
             cl_timer(false);
+			last_round.init();
+			last_round.msec = stpwcounter.msec - last_split.msec;
+			if(last_round.msec < 0){
+				last_round.sec--;
+				last_round.msec+=1000;
+			}
+			last_round.sec += stpwcounter.sec  - last_split.sec;
+			if(last_round.sec < 0){
+				last_round.min--;
+				last_round.sec += 60;
+			}
+			last_round.min += stpwcounter.min  - last_split.min;
+			if(last_round.min < 0){
+				last_round.hour--;
+				last_round.min += 60;
+			}
+			last_round.hour += stpwcounter.hour - last_split.hour;
+			
 		}
 	}
 
