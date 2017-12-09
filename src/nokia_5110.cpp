@@ -28,7 +28,7 @@ nokia_5110::nokia_5110(Output *DC_ob, Output *CS_ob, Output *RST_ob, Spi *spi_ob
     RST = RST_ob;
     spi = spi_ob;
     RST->off();
-    pcd8544_buffer = (uint8_t *) malloc((LCDWIDTH * LCDHEIGHT / 8)*sizeof(uint8_t));
+    pcd8544_buffer = (uint8_t *) calloc((LCDWIDTH * LCDHEIGHT / 8),sizeof(uint8_t));
     begin(60,4);
 }
 
