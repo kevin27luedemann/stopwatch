@@ -134,7 +134,8 @@ int main(void) {
             flag_reg&=~(1<<DISP_UPDATE);
         }
         else{
-            nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING) || position!=MO_WATCH || position!=MO_COUNTER || position!=MO_CLOCK_WATCH);
+            //nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING) || position!=MO_WATCH || position!=MO_COUNTER || position!=MO_CLOCK_WATCH);
+            nachti(flag_reg&(1<<BACKLIGHT) || flag_reg&(1<<CLORUNNING));
         }
 	}
     return 0;
