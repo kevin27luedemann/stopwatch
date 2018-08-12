@@ -103,6 +103,13 @@ struct stts {
 		min 	= 0;
 		hour 	= 0;
 	}
+	stts& operator=(stts const &cp){
+		msec 	= cp.msec;
+		sec		= cp.sec;
+		min		= cp.min;
+		hour	= cp.hour;
+		return *this;
+	}
 };
 
 class ds3231
