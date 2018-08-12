@@ -110,7 +110,7 @@ void ds3231::activate_sqm(){
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_WRITE);
     i2c.twi_write(DS3231_CONTROL_ADDR);
-    reg &= ~(DS3231_BBSQW);
+    reg |=  (DS3231_BBSQW);
     reg &= ~(DS3231_RS1);
     reg &= ~(DS3231_RS2);
     reg &= ~(DS3231_INTCN);
@@ -131,7 +131,7 @@ void ds3231::deactivate_sqm(){
     i2c.twi_start();
     i2c.twi_write(DS3231_I2C_ADDR | I2C_WRITE);
     i2c.twi_write(DS3231_CONTROL_ADDR);
-    i2c.twi_write(reg&(~DS3231_INTCN));
+    i2c.twi_write(reg&(~DS3231_BBSQW));
     i2c.twi_stop();
 }
 
