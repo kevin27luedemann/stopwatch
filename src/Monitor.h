@@ -389,6 +389,96 @@ class stop_watch:public monitor
 	}
 };
 
+class tacho:public monitor
+{
+	private:
+    void cl_timer(uint8_t on){
+        if(on){
+            TIMSK1 = (1 << OCIE1A);
+            OCR1A  = 57599;
+            TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+        	TCNT1   = 0;
+        }
+        else{
+            TCCR1B &= ~((1 << WGM12) | (1<<CS11) | (1<<CS10));
+        }
+    }
+	inline float ct_sec(){
+		return (float)holder.sec+((float)holder.msec)/1000.+(float)holder.min*60.+(float)holder.hour*3600.;
+	}
+	public:
+	stts holder;
+	float diameter;
+	float speed_kmh;
+	float speed_ms;
+	tacho(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+		maxentries 	= 1;
+		diameter 	= 28.0*2.54/100.0;
+		speed_kmh   = 0.;
+        speed_ms    = 0.;
+		holder.init();
+	}
+
+	void STRbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			stpwcounter.init();
+			holder.init();
+		}
+		else{
+			flag_reg &= ~(1<<CLORUNNING);
+            cl_timer(false);
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			flag_reg|=(1<<CLORUNNING);
+            cl_timer(true);
+		}
+		else{
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			holder = stpwcounter;
+			stpwcounter.init();
+		}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+		speed_ms    = diameter/ct_sec();
+        speed_kmh   = speed_ms*3.6;
+
+		no->draw_number16x16(((uint8_t)speed_kmh/100  )%10  ,0*numberbigsize            ,1*charhighte+charhighte/2);
+		no->draw_number16x16(((uint8_t)speed_kmh/10   )%10  ,1*numberbigsize            ,1*charhighte+charhighte/2);
+		no->draw_number16x16(((uint8_t)speed_kmh      )%10  ,2*numberbigsize            ,1*charhighte+charhighte/2);
+        no->draw_ASCI('.'                 		            ,3*numberbigsize            ,3*charhighte-charhighte/4*3);
+		no->draw_number16x16(((uint8_t)(speed_kmh*10.))%10  ,3*numberbigsize+charsize/2 ,1*charhighte+charhighte/2);
+        no->draw_ASCI('k'                 		            ,4*numberbigsize+3*charsize/4 ,1*charhighte+charhighte/2);
+        no->draw_ASCI('m'                 		            ,4*numberbigsize+7*charsize/4 ,1*charhighte+charhighte/2);
+        no->draw_ASCI('h'                 		            ,4*numberbigsize+3*charsize/4 ,2*charhighte+charhighte/2);
+
+		no->draw_ASCI('0'+((uint8_t)speed_ms/10  )%10 ,0*charsize ,3*charhighte+charhighte/2);
+		no->draw_ASCI('0'+((uint8_t)speed_ms     )%10 ,1*charsize ,3*charhighte+charhighte/2);
+        no->draw_ASCI('.'                 		      ,2*charsize ,3*charhighte+charhighte/2);
+		no->draw_ASCI('0'+((uint8_t)(speed_ms*10))%10 ,3*charsize ,3*charhighte+charhighte/2);
+        no->draw_ASCI('m'                 		      ,4*charsize+charsize/4 ,3*charhighte+charhighte/2);
+        no->draw_ASCI('/'                 		      ,5*charsize+charsize/4 ,3*charhighte+charhighte/2);
+        no->draw_ASCI('s'                 		      ,6*charsize+charsize/4 ,3*charhighte+charhighte/2);
+		send();
+	}
+};
+
 class counter:public monitor
 {
 	private:
@@ -558,6 +648,7 @@ const char menue_entries[][11] PROGMEM = {
     "Watch     ",
     "Stop watch",
     "Stop clock",
+	"Tacho     ",
     "Counter   ",
     "Backlight ",
     "Blank     "};

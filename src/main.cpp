@@ -84,17 +84,19 @@ void nachti(uint8_t light);
 void blpwm(uint8_t on);
 float get_voltage();
 
-#define numberofpages 5
 #define MO_WATCH        0
 #define MO_STOP_WATCH   1
 #define MO_CLOCK_WATCH  2
-#define MO_COUNTER      3
-#define MO_BRIGTHNES    4
+#define MO_TACHO        3
+#define MO_COUNTER      4
+#define MO_BRIGTHNES    5
+#define numberofpages   6
 #include "Monitor.h"
 monitor* mon[numberofpages+1] = {
             new watch(&nok,&rtc),
             new stop_watch(&nok,&rtc),
             new stop_clock(&nok,&rtc),
+            new tacho(&nok,&rtc),
             new counter(&nok,&rtc),
             new brightnes_settings(&nok,&rtc),
             new menue(&nok,&rtc)
