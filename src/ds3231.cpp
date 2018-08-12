@@ -59,14 +59,14 @@ void ds3231::get(){
     }
     i2c.twi_stop();
 
-    t.sec = TimeDate[0];
-    t.min = TimeDate[1];
-    t.hour = TimeDate[2];
-    t.mday = TimeDate[4];
-    t.mon = TimeDate[5];
-    t.year = year_full;
-    t.wday = TimeDate[3];
-    t.year_s = TimeDate[6];
+    t.sec       = TimeDate[0];
+    t.min       = TimeDate[1];
+    t.hour      = TimeDate[2];
+    t.mday      = TimeDate[4];
+    t.mon       = TimeDate[5];
+    t.year      = year_full;
+    t.wday      = TimeDate[3];
+    t.year_s    = TimeDate[6];
 }
 
 void ds3231::set(){
@@ -134,7 +134,6 @@ void ds3231::deactivate_sqm(){
     i2c.twi_write(reg&(~DS3231_BBSQW));
     i2c.twi_stop();
 }
-
 
 inline uint8_t ds3231::dectobcd(const uint8_t val)
 {

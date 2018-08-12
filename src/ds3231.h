@@ -47,6 +47,8 @@ struct ts {
 	int16_t yday;
 	int8_t isdst;
 	int8_t year_s;
+	int8_t GMT;
+	uint8_t DST;
 
 	inline void init(){
 		sec 	= 0;
@@ -59,6 +61,8 @@ struct ts {
 		yday    = 0;
 		isdst   = 0;
 		year_s  = 0;
+		GMT		= 2;
+		DST		= 1;
 	}
 };
 
@@ -93,7 +97,6 @@ struct stts {
 			}
 		}
 	}
- 	
 	inline void init(){
 		msec 	= 0;
 		sec 	= 0;
