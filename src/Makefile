@@ -10,7 +10,7 @@ BAUD=38400
 
 #Ab hier nichts verändern
 OBJECTS=$(SOURCES:.cpp=.o)
-CFLAGS=-c -Os -std=c++11
+CFLAGS=-c -std=c++11 -Os
 LDFLAGS=-lprintf_flt -lm -fpermissive -u vfprintf 
 
 all: hex eeprom

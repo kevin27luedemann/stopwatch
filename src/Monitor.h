@@ -492,6 +492,9 @@ class watch:public monitor
 	watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
 	}
+
+	void STWbtn(){
+		}
 	
 	//anzeige vorbereiten
 	void draw()
