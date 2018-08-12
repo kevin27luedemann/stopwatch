@@ -172,6 +172,17 @@ class stop_clock:public monitor
 		switch (posy)
 		{
 			case 0:
+				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,0*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,1*charsize,1*charhighte+charhighte/2);
+				no->draw_ASCI(':'                             ,2*charsize,1*charhighte+charhighte/2);
+				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
+				break;
+			case 1:
 				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,3*charsize,1.5*charhighte);
 				no->draw_ASCI('0'+(stpwcounter.hour     )%10,4*charsize,1.5*charhighte);
 				no->draw_ASCI(':'                           ,5*charsize,1.5*charhighte);
@@ -198,17 +209,6 @@ class stop_clock:public monitor
 				no->draw_ASCI(':'                    	   ,8*charsize,3.5*charhighte);
 				no->draw_ASCI('0'+(last_round.sec/10)%10   ,9*charsize,3.5*charhighte);
 				no->draw_ASCI('0'+(last_round.sec   )%10   ,10*charsize,3.5*charhighte);
-				break;
-			case 1:
-				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,0*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,1*charsize,1*charhighte+charhighte/2);
-				no->draw_ASCI(':'                             ,2*charsize,1*charhighte+charhighte/2);
-				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
-				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
-				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
-				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
-				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
-				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
 				break;
 			default:
 				break;
@@ -328,6 +328,21 @@ class stop_watch:public monitor
 		switch (posy)
 		{
 			case 0:
+				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10  ,0*charsize 							   ,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.hour     )%10  ,1*charsize							   ,1*charhighte+charhighte/2);
+				no->draw_ASCI(':'                             ,2*charsize							   ,1*charhighte+charhighte/2);
+				no->draw_number16x16((stpwcounter.min/10)%10  ,LCDWIDTH-4*numberbigsize-charsize+1 	   ,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.min   )%10  ,LCDWIDTH-3*numberbigsize-charsize+1	   ,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1 ,3*charhighte-charhighte/4*3);
+				no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1 ,3*charhighte+charhighte/4);
+				no->draw_number16x16((stpwcounter.sec/10)%10  ,LCDWIDTH-2*numberbigsize				   ,3*charhighte-charhighte/2);
+				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				   ,3*charhighte-charhighte/2);
+				no->draw_ASCI('.'                             ,LCDWIDTH-4*charsize					   ,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec/100 )%10  ,LCDWIDTH-3*charsize 					   ,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec/10  )%10  ,LCDWIDTH-2*charsize					   ,1*charhighte+charhighte/2);
+				no->draw_ASCI('0'+(stpwcounter.msec     )%10  ,LCDWIDTH-1*charsize					   ,1*charhighte+charhighte/2);
+				break;
+			case 1:
 				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,1.5*charhighte);
 				no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,1.5*charhighte);
 				no->draw_ASCI(':'                           ,3*charsize,1.5*charhighte);
@@ -366,20 +381,6 @@ class stop_watch:public monitor
 				no->draw_ASCI('0'+(last_round.msec/100)%10 ,10*charsize,3.5*charhighte);
 				no->draw_ASCI('0'+(last_round.msec/10 )%10 ,11*charsize,3.5*charhighte);
 				no->draw_ASCI('0'+(last_round.msec    )%10 ,12*charsize,3.5*charhighte);
-				break;
-			case 1:
-				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,2.5*charhighte);
-				no->draw_ASCI(':'                           ,3*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,4*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min   )%10   ,5*charsize,2.5*charhighte);
-				no->draw_ASCI(':'                    		,6*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,7*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,8*charsize,2.5*charhighte);
-				no->draw_ASCI(':'                    	    ,9*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec/100)%10 ,10*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec/10 )%10 ,11*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec    )%10 ,12*charsize,2.5*charhighte);
 				break;
 			default:
 				break;
