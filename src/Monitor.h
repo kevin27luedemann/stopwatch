@@ -479,18 +479,25 @@ class tacho:public monitor
 	}
 };
 
+const char basketball_names[][11] PROGMEM = {
+    "  Snickers",
+    " Superstar",
+    "    Anhang",
+    "     Bonus"};
 class counter:public monitor
 {
 	private:
 	public:
 	int16_t *c;
 	uint8_t dele;
+    uint8_t basketball;
 	counter(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
-		maxentries = 4+1;
+		maxentries = 4+2;
 		dele = 0;
-		c = new int16_t[maxentries-1];
-		for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
+        basketball = 0;
+		c = new int16_t[maxentries-2];
+		for(uint8_t i=0;i<maxentries-2;i++){c[i]=0;}
 	}
 
 	void STRbtn(){
@@ -498,6 +505,8 @@ class counter:public monitor
 			dele++;
 			if(dele==2){dele=0;}
 		}
+        else if(posy == maxentries-2){
+        }
 		else{
 			c[posy]--;
 		}
@@ -509,6 +518,10 @@ class counter:public monitor
 			for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
 			posy = 0;
 		}
+        if(posy == maxentries-2){
+            basketball += 1;
+            basketball %= 2;
+        }
 		else{
 			c[posy]++;
 		}
@@ -560,9 +573,48 @@ class counter:public monitor
 				no->draw_ASCI('!',8*charsize,3*charhighte);
 			}
 		}
+        else if(posy == maxentries -2){
+
+            no->draw_ASCI('B', 1*charsize,2*charhighte);
+            no->draw_ASCI('a', 2*charsize,2*charhighte);
+            no->draw_ASCI('s', 3*charsize,2*charhighte);
+            no->draw_ASCI('k', 4*charsize,2*charhighte);
+            no->draw_ASCI('e', 5*charsize,2*charhighte);
+            no->draw_ASCI('t', 6*charsize,2*charhighte);
+            no->draw_ASCI('b', 7*charsize,2*charhighte);
+            no->draw_ASCI('a', 8*charsize,2*charhighte);
+            no->draw_ASCI('l', 9*charsize,2*charhighte);
+            no->draw_ASCI('l',10*charsize,2*charhighte);
+            if(basketball){
+                no->draw_ASCI('t', 1*charsize,3*charhighte);
+                no->draw_ASCI('r', 2*charsize,3*charhighte);
+                no->draw_ASCI('u', 3*charsize,3*charhighte);
+                no->draw_ASCI('e', 4*charsize,3*charhighte);
+            }
+            else{
+                no->draw_ASCI('f', 1*charsize,3*charhighte);
+                no->draw_ASCI('a', 2*charsize,3*charhighte);
+                no->draw_ASCI('l', 3*charsize,3*charhighte);
+                no->draw_ASCI('s', 4*charsize,3*charhighte);
+                no->draw_ASCI('e', 5*charsize,3*charhighte);
+            }
+
+        }
 		else{
-			no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
-			no->draw_ASCI(':'     ,1*charsize,1*charhighte);
+            if(basketball){
+                for(uint8_t i=0;i<11;i++){
+                    if(i<10){
+                        no->draw_ASCI(pgm_read_byte(&basketball_names[posy][i]),i*charsize+0*charsize,1*charhighte);
+                    }
+                    else{
+                        no->draw_ASCI(':',i*charsize+0*charsize,1*charhighte);
+                    }
+                }
+            }
+            else{
+                no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
+                no->draw_ASCI(':'     ,1*charsize,1*charhighte);
+            }
 			if(c[posy] < 0){
 				no->draw_ASCI('-'     ,0.5*charsize,2.5*charhighte);
 			}
