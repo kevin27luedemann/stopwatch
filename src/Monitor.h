@@ -643,7 +643,7 @@ class counter:public monitor
 			for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
 			posy = 0;
 		}
-        if(posy == maxentries-2){
+        else if(posy == maxentries-2){
             basketball += 1;
             basketball %= 2;
         }
