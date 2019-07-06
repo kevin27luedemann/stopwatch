@@ -10,7 +10,7 @@ BAUD=38400
 
 #Ab hier nichts verändern
 OBJECTS=$(SOURCES:.cpp=.o)
-CFLAGS=-c -std=c++11 -Ofast
+CFLAGS=-c -std=c++11 -Os
 LDFLAGS=-lprintf_flt -lm -fpermissive -u vfprintf 
 
 all: hex eeprom
@@ -37,7 +37,7 @@ size:
 
 program: $(TARGET).hex
 	#avrdude -p$(MCU) -P$(PORT) -B$(BAUD) -c$(PROGRAMMER) -Uflash:w:$(TARGET).hex:a
-	~/bin/bootloader -d $(PORT) -b 19200 -v -p $(TARGET).hex
+	/home/luedemann/bin/bootloader -d $(PORT) -b 19200 -v -p $(TARGET).hex
 
 readee:
 	avrdude -p$(MCU) -P$(PORT) -B$(BAUD) -c$(PROGRAMMER) -Ueeprom:r:$(TARGET).eep:i

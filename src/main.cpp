@@ -71,7 +71,6 @@ uint16_t flag_reg;
 #define CLOCK_TICK      8
 #define CLORUNNING      9
 #define CLOCKWATCH      10
-#define WHP_COUNTING    11
 
 uint8_t brightnes;
 stts stpwcounter;
@@ -90,9 +89,8 @@ float get_voltage();
 #define MO_CLOCK_WATCH  2
 #define MO_TACHO        3
 #define MO_COUNTER      4
-#define MO_WHP          5
-#define MO_BRIGTHNES    6
-#define numberofpages   7
+#define MO_BRIGTHNES    5
+#define numberofpages   6
 #include "Monitor.h"
 monitor* mon[numberofpages+1] = {
             new watch(&nok,&rtc),
@@ -100,7 +98,6 @@ monitor* mon[numberofpages+1] = {
             new stop_clock(&nok,&rtc),
             new tacho(&nok,&rtc),
             new counter(&nok,&rtc),
-            new whp(&nok,&rtc),
             new brightnes_settings(&nok,&rtc),
             new menue(&nok,&rtc)
             };
@@ -130,9 +127,6 @@ int main(void) {
             if(flag_reg&(1<<CLOCKWATCH)){
                 stpwcounter.inc();
                 //mon[position]->clock_tick();
-            }
-            if(flag_reg&(1<<WHP_COUNTING)){
-                mon[MO_WHP]->clock_tick();
             }
             batt = get_voltage();
             batt /= TEILER;

@@ -393,127 +393,6 @@ class stop_watch:public monitor
 	}
 };
 
-class whp:public monitor
-{
-	private:
-	public:
-    stts arbeit[5];
-    uint8_t posyp;
-	whp(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
-	{
-		maxentries  = 5;
-        posyp       = 0;
-        for(uint8_t i=0; i<maxentries; i++){arbeit[i].init();}
-	}
-
-	void STRbtn(){
-		if(!(flag_reg&(1<<WHP_COUNTING))){
-            for(uint8_t i=0; i<maxentries; i++){arbeit[i].init();}
-		}
-        else{
-            flag_reg &= ~(1<<WHP_COUNTING);
-        }
-	}
-
-	void STWbtn(){
-		if(!(flag_reg&(1<<WHP_COUNTING))){
-            if(posy != maxentries-1){
-                if(posy!=posyp){
-                    posyp = posy;
-                }
-			    flag_reg |= (1<<WHP_COUNTING);
-            }
-		}
-		else{
-            if(posy!=maxentries-1){
-                if(posy!=posyp){
-                    posyp = posy;
-                }
-                else{
-                    flag_reg &= ~(1<<WHP_COUNTING);
-                }
-            }
-            else{
-                flag_reg &= ~(1<<WHP_COUNTING);
-            }
-		}
-	}
-    void clock_tick(){
-        arbeit[posyp].inc();
-        arbeit[4].inc();
-    }
-
-	//anzeige vorbereiten
-	void draw()
-	{
-		monitor::draw();
-		header();
-		footer();
-		switch (posy)
-		{
-			case 0:
-                no->draw_ASCI('A',0*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('r',1*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('b',2*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('e',3*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('i',4*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('t',5*charsize,1*charhighte+charhighte/2);
-                break;
-			case 1:
-                no->draw_ASCI('P',0*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('a',1*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('u',2*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('s',3*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('e',4*charsize,1*charhighte+charhighte/2);
-                break;
-			case 2:
-                no->draw_ASCI('M',0*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('i',1*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('t',2*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('t',3*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('a',4*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('g',5*charsize,1*charhighte+charhighte/2);
-                break;
-			case 3:
-                no->draw_ASCI('G',0*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('r',1*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('u',2*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('p',3*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('p',4*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('e',5*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('n',6*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI(' ',7*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('R',8*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('u',9*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('n',10*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('d',11*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('e',12*charsize,1*charhighte+charhighte/2);
-                break;
-            case 4:
-                no->draw_ASCI('G',0*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('e',1*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('s',2*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('a',3*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('m',4*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('m',5*charsize,1*charhighte+charhighte/2);
-                no->draw_ASCI('t',6*charsize,1*charhighte+charhighte/2);
-                break;
-			default:
-				break;
-		}
-        no->draw_ASCI('0'+(arbeit[posy].hour/10  )%10 ,0*charsize,3*charhighte+charhighte/2);
-        no->draw_ASCI('0'+(arbeit[posy].hour     )%10 ,1*charsize,3*charhighte+charhighte/2);
-        no->draw_ASCI(':'                             ,2*charsize,3*charhighte+charhighte/2);
-        no->draw_number16x16((arbeit[posy].min/10)%10 ,LCDWIDTH-4*numberbigsize-charsize+1 	,3*charhighte-charhighte/2);
-        no->draw_number16x16((arbeit[posy].min   )%10 ,LCDWIDTH-3*numberbigsize-charsize+1	,3*charhighte-charhighte/2);
-        no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte-charhighte/4*3);
-        no->draw_ASCI('.'                    		  ,LCDWIDTH-2*numberbigsize-charsize*3/4-1,3*charhighte+charhighte/4);
-        no->draw_number16x16((arbeit[posy].sec/10)%10 ,LCDWIDTH-2*numberbigsize				,3*charhighte-charhighte/2);
-        no->draw_number16x16((arbeit[posy].sec   )%10 ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
-		send();
-	}
-};
-
 class tacho:public monitor
 {
 	private:
@@ -827,7 +706,6 @@ const char menue_entries[][11] PROGMEM = {
     "Stop clock",
 	"Tacho     ",
     "Counter   ",
-    "Work hours",
     "Backlight ",
     "Blank     "};
 class menue: public monitor
