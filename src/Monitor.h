@@ -75,10 +75,10 @@ public:
 		no->draw_ASCI('0'+rt->t.sec/10%10 ,6*charsize,0);
 		no->draw_ASCI('0'+rt->t.sec%10    ,7*charsize,0);
 	
-		no->draw_ASCI('0'+uint16_t(batt)%10      ,LCDWIDTH-5*charsize,0);
+		no->draw_ASCI('0'+uint8_t(batt)%10      ,LCDWIDTH-5*charsize,0);
 		no->draw_ASCI('.'                        ,LCDWIDTH-4*charsize,0);
-		no->draw_ASCI('0'+uint32_t(batt*10.0)%10 ,LCDWIDTH-3*charsize,0);
-		no->draw_ASCI('0'+uint32_t(batt*100.0)%10,LCDWIDTH-2*charsize,0);
+		no->draw_ASCI('0'+uint8_t(batt*10.0)%10 ,LCDWIDTH-3*charsize,0);
+		no->draw_ASCI('0'+uint8_t(batt*100.0)%10,LCDWIDTH-2*charsize,0);
 		no->draw_ASCI('V'                        ,LCDWIDTH-1*charsize,0);
 	}
 	
@@ -187,32 +187,32 @@ class stop_clock:public monitor
 				no->draw_number16x16((stpwcounter.sec   )%10  ,LCDWIDTH-1*numberbigsize				,3*charhighte-charhighte/2);
 				break;
 			case 1:
-				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,3*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.hour     )%10,4*charsize,1.5*charhighte);
-				no->draw_ASCI(':'                           ,5*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,6*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min   )%10   ,7*charsize,1.5*charhighte);
-				no->draw_ASCI(':'                    		,8*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,9*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,10*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.hour/10  )%10, 3*charsize,3*charhighte/2);
+				//no->draw_ASCI('0'+(stpwcounter.hour     )%10, 4*charsize,3*charhighte/2);
+				//no->draw_ASCI(':'                           , 5*charsize,3*charhighte/2);
+				//no->draw_ASCI('0'+(stpwcounter.min/10)%10   , 6*charsize,3*charhighte/2);
+				//no->draw_ASCI('0'+(stpwcounter.min   )%10   , 7*charsize,3*charhighte/2);
+				//no->draw_ASCI(':'                    		, 8*charsize,3*charhighte/2);
+				//no->draw_ASCI('0'+(stpwcounter.sec/10)%10   , 9*charsize,3*charhighte/2);
+				//no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,10*charsize,3*charhighte/2);
 
-				no->draw_ASCI('0'+(last_split.hour/10  )%10,3*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(last_split.hour     )%10,4*charsize,2.5*charhighte);
-				no->draw_ASCI(':'                          ,5*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(last_split.min/10)%10   ,6*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(last_split.min   )%10   ,7*charsize,2.5*charhighte);
-				no->draw_ASCI(':'                    	   ,8*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(last_split.sec/10)%10   ,9*charsize,2.5*charhighte);
-				no->draw_ASCI('0'+(last_split.sec   )%10   ,10*charsize,2.5*charhighte);
+				no->draw_ASCI('0'+(last_split.hour/10  )%10, 3*charsize,5*charhighte/2);
+				no->draw_ASCI('0'+(last_split.hour     )%10, 4*charsize,5*charhighte/2);
+				no->draw_ASCI(':'                          , 5*charsize,5*charhighte/2);
+				no->draw_ASCI('0'+(last_split.min/10)%10   , 6*charsize,5*charhighte/2);
+				no->draw_ASCI('0'+(last_split.min   )%10   , 7*charsize,5*charhighte/2);
+				no->draw_ASCI(':'                    	   , 8*charsize,5*charhighte/2);
+				no->draw_ASCI('0'+(last_split.sec/10)%10   , 9*charsize,5*charhighte/2);
+				no->draw_ASCI('0'+(last_split.sec   )%10   ,10*charsize,5*charhighte/2);
 
-				no->draw_ASCI('0'+(last_round.hour/10  )%10,3*charsize,3.5*charhighte);
-				no->draw_ASCI('0'+(last_round.hour     )%10,4*charsize,3.5*charhighte);
-				no->draw_ASCI(':'                          ,5*charsize,3.5*charhighte);
-				no->draw_ASCI('0'+(last_round.min/10)%10   ,6*charsize,3.5*charhighte);
-				no->draw_ASCI('0'+(last_round.min   )%10   ,7*charsize,3.5*charhighte);
-				no->draw_ASCI(':'                    	   ,8*charsize,3.5*charhighte);
-				no->draw_ASCI('0'+(last_round.sec/10)%10   ,9*charsize,3.5*charhighte);
-				no->draw_ASCI('0'+(last_round.sec   )%10   ,10*charsize,3.5*charhighte);
+				no->draw_ASCI('0'+(last_round.hour/10  )%10, 3*charsize,7*charhighte/2);
+				no->draw_ASCI('0'+(last_round.hour     )%10, 4*charsize,7*charhighte/2);
+				no->draw_ASCI(':'                          , 5*charsize,7*charhighte/2);
+				no->draw_ASCI('0'+(last_round.min/10)%10   , 6*charsize,7*charhighte/2);
+				no->draw_ASCI('0'+(last_round.min   )%10   , 7*charsize,7*charhighte/2);
+				no->draw_ASCI(':'                    	   , 8*charsize,7*charhighte/2);
+				no->draw_ASCI('0'+(last_round.sec/10)%10   , 9*charsize,7*charhighte/2);
+				no->draw_ASCI('0'+(last_round.sec   )%10   ,10*charsize,7*charhighte/2);
 				break;
 			default:
 				break;
@@ -347,18 +347,18 @@ class stop_watch:public monitor
 				no->draw_ASCI('0'+(stpwcounter.msec     )%10  ,LCDWIDTH-1*charsize					   ,1*charhighte+charhighte/2);
 				break;
 			case 1:
-				no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,1.5*charhighte);
-				no->draw_ASCI(':'                           ,3*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,4*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.min   )%10   ,5*charsize,1.5*charhighte);
-				no->draw_ASCI(':'                    		,6*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,7*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,8*charsize,1.5*charhighte);
-				no->draw_ASCI(':'                    	    ,9*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec/100)%10 ,10*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec/10 )%10 ,11*charsize,1.5*charhighte);
-				no->draw_ASCI('0'+(stpwcounter.msec    )%10 ,12*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.hour/10  )%10,1*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.hour     )%10,2*charsize,1.5*charhighte);
+				//no->draw_ASCI(':'                           ,3*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.min/10)%10   ,4*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.min   )%10   ,5*charsize,1.5*charhighte);
+				//no->draw_ASCI(':'                    		,6*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.sec/10)%10   ,7*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.sec   )%10   ,8*charsize,1.5*charhighte);
+				//no->draw_ASCI(':'                    	    ,9*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.msec/100)%10 ,10*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.msec/10 )%10 ,11*charsize,1.5*charhighte);
+				//no->draw_ASCI('0'+(stpwcounter.msec    )%10 ,12*charsize,1.5*charhighte);
 
 				no->draw_ASCI('0'+(last_split.hour/10  )%10,1*charsize,2.5*charhighte);
 				no->draw_ASCI('0'+(last_split.hour     )%10,2*charsize,2.5*charhighte);
@@ -389,6 +389,134 @@ class stop_watch:public monitor
 			default:
 				break;
 		}
+		send();
+	}
+};
+
+class react_game:public monitor
+{
+	private:
+    void cl_timer(uint8_t on){
+        if(on){
+            TIMSK1 = (1 << OCIE1A);
+            OCR1A  = 57599;
+            TCCR1B = (1 << WGM12) | (1<<CS11) | (1<<CS10); //CTC Mode
+        	TCNT1   = 0;
+        }
+        else{
+            TCCR1B &= ~((1 << WGM12) | (1<<CS11) | (1<<CS10));
+        }
+    }
+    void rand_time(){
+        	TCNT1   = (uint16_t)((float)rand()/((float)RAND_MAX+1.)*57598.);
+    }
+	public:
+    int8_t seconds;
+    int8_t rsec;
+    bool filled[5];
+	react_game(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
+	{
+		maxentries = 1;
+        seconds = 0;
+        rsec = 0;
+        filled[0]   = false;
+        filled[1]   = false;
+        filled[2]   = false;
+        filled[3]   = false;
+        filled[4]   = false;
+	}
+
+    void timer(){
+		if((flag_reg&(1<<CLORUNNING))){
+            if(seconds<5 && seconds>=0){
+                seconds++;
+                filled[seconds-1] = true;
+            }
+            else if(seconds==5){
+                seconds++;
+                rsec--;
+            }
+            else if(rsec>0){
+                rsec--;
+            }
+            else if(rsec==0){
+                rand_time();
+                rsec--;
+            }
+            else if(rsec==-1){
+                cl_timer(true);
+                stpwcounter.init();
+                seconds = -1;
+                rsec--;
+                filled[0]   = false;
+                filled[1]   = false;
+                filled[2]   = false;
+                filled[3]   = false;
+                filled[4]   = false;
+            }
+        }
+
+    }
+
+	void STRbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			stpwcounter.init();
+            seconds = 0;
+            filled[0]   = false;
+            filled[1]   = false;
+            filled[2]   = false;
+            filled[3]   = false;
+            filled[4]   = false;
+		}
+	}
+
+	void STWbtn(){
+		if(!(flag_reg&(1<<CLORUNNING))){
+			flag_reg|=(1<<CLORUNNING);
+			stpwcounter.init();
+            seconds = 0;
+            rsec    = (int8_t)((float)rand()/((float)RAND_MAX+1.)*5.);
+            cl_timer(true);
+		}
+		else{
+			uint32_t temp1 = TCNT1;
+			temp1 += 1;
+			temp1 *= 64;
+			stpwcounter.msec += uint16_t (temp1/F_CPU_KHZ);
+			if(stpwcounter.msec>=1000){
+				stpwcounter.inc();
+				stpwcounter.msec-=1000;
+		   	}
+			flag_reg &= ~(1<<CLORUNNING);
+            cl_timer(false);
+		}
+	}
+
+	//anzeige vorbereiten
+	void draw()
+	{
+		monitor::draw();
+		header();
+		footer();
+        //if(seconds== -1){
+            no->draw_number16x16((stpwcounter.sec      )%10  ,0*numberbigsize+charsize				,LCDHEIGHT-numberbighight);
+            no->draw_ASCI('.'                                ,1*numberbigsize+charsize				,LCDHEIGHT-charhighte*2);
+            no->draw_number16x16((stpwcounter.msec/100 )%10  ,1*numberbigsize+charsize/2+charsize    ,LCDHEIGHT-numberbighight);
+            no->draw_number16x16((stpwcounter.msec/10  )%10  ,2*numberbigsize+charsize/2+charsize    ,LCDHEIGHT-numberbighight);
+            no->draw_number16x16((stpwcounter.msec     )%10  ,3*numberbigsize+charsize/2+charsize    ,LCDHEIGHT-numberbighight);
+        //}
+        //else{
+        //    no->draw_number16x16(0  ,0*numberbigsize+charsize			    ,LCDHEIGHT-numberbighight);
+        //    no->draw_ASCI('.'       ,1*numberbigsize+charsize			    ,LCDHEIGHT-charhighte*2);
+        //    no->draw_number16x16(0  ,1*numberbigsize+charsize/2+charsize     ,LCDHEIGHT-numberbighight);
+        //    no->draw_number16x16(0  ,2*numberbigsize+charsize/2+charsize     ,LCDHEIGHT-numberbighight);
+        //    no->draw_number16x16(0  ,3*numberbigsize+charsize/2+charsize     ,LCDHEIGHT-numberbighight);
+        //}
+        no->drawRectangle( 0*charsize,1*charhighte+charhighte/2, 1*charsize,2*charhighte+charhighte/2,filled[0]);
+        no->drawRectangle( 3*charsize,1*charhighte+charhighte/2, 4*charsize,2*charhighte+charhighte/2,filled[1]);
+        no->drawRectangle( 6*charsize,1*charhighte+charhighte/2, 7*charsize,2*charhighte+charhighte/2,filled[2]);
+        no->drawRectangle( 9*charsize,1*charhighte+charhighte/2,10*charsize,2*charhighte+charhighte/2,filled[3]);
+        no->drawRectangle(12*charsize,1*charhighte+charhighte/2,13*charsize,2*charhighte+charhighte/2,filled[4]);
 		send();
 	}
 };
@@ -483,23 +611,16 @@ class tacho:public monitor
 	}
 };
 
-const char basketball_names[][11] PROGMEM = {
-    "  Snickers",
-    " Superstar",
-    "    Anhang",
-    "     Bonus"};
 class counter:public monitor
 {
 	private:
 	public:
 	int16_t *c;
 	uint8_t dele;
-    uint8_t basketball;
 	counter(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
-		maxentries = 4+2;
+		maxentries = 4+1;
 		dele = 0;
-        basketball = 0;
 		c = new int16_t[maxentries-2];
 		for(uint8_t i=0;i<maxentries-2;i++){c[i]=0;}
 	}
@@ -509,8 +630,6 @@ class counter:public monitor
 			dele++;
 			if(dele==2){dele=0;}
 		}
-        else if(posy == maxentries-2){
-        }
 		else{
 			c[posy]--;
 		}
@@ -522,10 +641,6 @@ class counter:public monitor
 			for(uint8_t i=0;i<maxentries-1;i++){c[i]=0;}
 			posy = 0;
 		}
-        else if(posy == maxentries-2){
-            basketball += 1;
-            basketball %= 2;
-        }
 		else{
 			c[posy]++;
 		}
@@ -539,93 +654,26 @@ class counter:public monitor
 		footer();
 		if(posy == maxentries-1){
 			if(dele == 0){
-				no->draw_ASCI('D',1*charsize,2*charhighte);
-				no->draw_ASCI('e',2*charsize,2*charhighte);
-				no->draw_ASCI('l',3*charsize,2*charhighte);
-				no->draw_ASCI('e',4*charsize,2*charhighte);
-				no->draw_ASCI('t',5*charsize,2*charhighte);
-				no->draw_ASCI('e',6*charsize,2*charhighte);
-				no->draw_ASCI(' ',7*charsize,2*charhighte);
-				no->draw_ASCI('A',8*charsize,2*charhighte);
-				no->draw_ASCI('l',9*charsize,2*charhighte);
-				no->draw_ASCI('l',10*charsize,2*charhighte);
-				no->draw_ASCI('?',11*charsize,2*charhighte);
-
-				no->draw_ASCI('H',1*charsize,3*charhighte);
-				no->draw_ASCI('i',2*charsize,3*charhighte);
-				no->draw_ASCI('t',3*charsize,3*charhighte);
-				no->draw_ASCI(' ',4*charsize,3*charhighte);
 				no->draw_ASCI('S',5*charsize,3*charhighte);
 				no->draw_ASCI('T',6*charsize,3*charhighte);
 				no->draw_ASCI('R',7*charsize,3*charhighte);
-				no->draw_ASCI('!',8*charsize,3*charhighte);
 			}
 			else{
-				no->draw_ASCI('S',1*charsize,2*charhighte);
-				no->draw_ASCI('u',2*charsize,2*charhighte);
-				no->draw_ASCI('r',3*charsize,2*charhighte);
-				no->draw_ASCI('e',4*charsize,2*charhighte);
-				no->draw_ASCI('?',5*charsize,2*charhighte);
-
-				no->draw_ASCI('H',1*charsize,3*charhighte);
-				no->draw_ASCI('i',2*charsize,3*charhighte);
-				no->draw_ASCI('t',3*charsize,3*charhighte);
-				no->draw_ASCI(' ',4*charsize,3*charhighte);
 				no->draw_ASCI('S',5*charsize,3*charhighte);
 				no->draw_ASCI('T',6*charsize,3*charhighte);
 				no->draw_ASCI('W',7*charsize,3*charhighte);
-				no->draw_ASCI('!',8*charsize,3*charhighte);
 			}
 		}
-        else if(posy == maxentries -2){
-
-            no->draw_ASCI('B', 1*charsize,2*charhighte);
-            no->draw_ASCI('a', 2*charsize,2*charhighte);
-            no->draw_ASCI('s', 3*charsize,2*charhighte);
-            no->draw_ASCI('k', 4*charsize,2*charhighte);
-            no->draw_ASCI('e', 5*charsize,2*charhighte);
-            no->draw_ASCI('t', 6*charsize,2*charhighte);
-            no->draw_ASCI('b', 7*charsize,2*charhighte);
-            no->draw_ASCI('a', 8*charsize,2*charhighte);
-            no->draw_ASCI('l', 9*charsize,2*charhighte);
-            no->draw_ASCI('l',10*charsize,2*charhighte);
-            if(basketball){
-                no->draw_ASCI('t', 1*charsize,3*charhighte);
-                no->draw_ASCI('r', 2*charsize,3*charhighte);
-                no->draw_ASCI('u', 3*charsize,3*charhighte);
-                no->draw_ASCI('e', 4*charsize,3*charhighte);
-            }
-            else{
-                no->draw_ASCI('f', 1*charsize,3*charhighte);
-                no->draw_ASCI('a', 2*charsize,3*charhighte);
-                no->draw_ASCI('l', 3*charsize,3*charhighte);
-                no->draw_ASCI('s', 4*charsize,3*charhighte);
-                no->draw_ASCI('e', 5*charsize,3*charhighte);
-            }
-
-        }
 		else{
-            if(basketball){
-                for(uint8_t i=0;i<11;i++){
-                    if(i<10){
-                        no->draw_ASCI(pgm_read_byte(&basketball_names[posy][i]),i*charsize+0*charsize,1*charhighte);
-                    }
-                    else{
-                        no->draw_ASCI(':',i*charsize+0*charsize,1*charhighte);
-                    }
-                }
-            }
-            else{
-                no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
-                no->draw_ASCI(':'     ,1*charsize,1*charhighte);
-            }
+            no->draw_ASCI('0'+posy,0*charsize,1*charhighte);
+            no->draw_ASCI(':'     ,1*charsize,1*charhighte);
 			if(c[posy] < 0){
 				no->draw_ASCI('-'     ,0.5*charsize,2.5*charhighte);
 			}
-			no->draw_number16x16(abs(c[posy]/10000)%10,0*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy]/100  )%10,1*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy]/10   )%10,2*numberbigsize+1.5*charsize,2*charhighte);
-			no->draw_number16x16(abs(c[posy]      )%10,3*numberbigsize+1.5*charsize,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/10000)%10,0*numberbigsize+3*charsize/2,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/100  )%10,1*numberbigsize+3*charsize/2,2*charhighte);
+			no->draw_number16x16(abs(c[posy]/10   )%10,2*numberbigsize+3*charsize/2,2*charhighte);
+			no->draw_number16x16(abs(c[posy]      )%10,3*numberbigsize+3*charsize/2,2*charhighte);
 		}
 
 		send();
@@ -706,6 +754,7 @@ const char menue_entries[][11] PROGMEM = {
     "Stop clock",
 	"Tacho     ",
     "Counter   ",
+    "React game",
     "Backlight ",
     "Blank     "};
 class menue: public monitor

@@ -13,6 +13,7 @@
 #define BAUD 9600
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
@@ -89,8 +90,9 @@ float get_voltage();
 #define MO_CLOCK_WATCH  2
 #define MO_TACHO        3
 #define MO_COUNTER      4
-#define MO_BRIGTHNES    5
-#define numberofpages   6
+#define MO_REACT_GAME   5
+#define MO_BRIGTHNES    6
+#define numberofpages   7
 #include "Monitor.h"
 monitor* mon[numberofpages+1] = {
             new watch(&nok,&rtc),
@@ -98,6 +100,7 @@ monitor* mon[numberofpages+1] = {
             new stop_clock(&nok,&rtc),
             new tacho(&nok,&rtc),
             new counter(&nok,&rtc),
+            new react_game(&nok,&rtc),
             new brightnes_settings(&nok,&rtc),
             new menue(&nok,&rtc)
             };
@@ -107,6 +110,7 @@ int main(void) {
     init();
 
     mon[position]->draw();
+    srand(rtc.t.sec+rtc.t.min*60+rtc.t.hour*3600+rtc.t.wday*24*3600);
 
 	while(true) 
     {
