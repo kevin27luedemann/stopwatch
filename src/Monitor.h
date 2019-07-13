@@ -408,7 +408,7 @@ class react_game:public monitor
         }
     }
     void rand_time(){
-        	TCNT1   = (uint16_t)((float)rand()/((float)RAND_MAX+1.)*57598.);
+        	TCNT1   = (uint16_t)(rand()%57598);
     }
 	public:
     int8_t seconds;
@@ -475,7 +475,7 @@ class react_game:public monitor
 			flag_reg|=(1<<CLORUNNING);
 			stpwcounter.init();
             seconds = 0;
-            rsec    = (int8_t)((float)rand()/((float)RAND_MAX+1.)*5.);
+            rsec    = (int8_t)(rand()%3);
             cl_timer(true);
 		}
 		else{
