@@ -155,6 +155,9 @@ void init(){
     //uart_init();
     flag_reg = 0;
 
+    //Set RTC SQM on
+    rtc.activate_sqm();
+
     //seconds timer
 
     //Pin change interrupts

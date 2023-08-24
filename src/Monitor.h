@@ -683,20 +683,77 @@ class counter:public monitor
 class watch:public monitor
 {
 	private:
+    uint8_t settings = 0;
 	public:
 	watch(nokia_5110 *disp, ds3231 *rt):monitor(disp,rt)
 	{
+    maxentries = 5;
 	}
+	void STRbtn(){
+        if (settings==1){
+            settings = 2;
+        }
+        else if (settings == 2){
+            settings = 0;
+        }
+        else{
+            settings = 0;
+        }
+    }
 
 	void STWbtn(){
-		}
-	
+        if (settings==0){
+            settings = 1;
+        }
+        else if(settings == 2){
+            switch (posy)
+            {
+                case 0:
+                    rt->t.hour++;
+                    if(rt->t.hour > 23){
+                        rt->t.hour = 0;
+                    }
+                    break;
+                case 1:
+                    rt->t.min++;
+                    if(rt->t.min > 59){
+                        rt->t.min = 0;
+                    }
+                    break;
+                case 2:
+                    rt->t.mday++;
+                    if(rt->t.mday > 31){
+                        rt->t.mday = 0;
+                    }
+                    break;
+                case 3:
+                    rt->t.mon++;
+                    if(rt->t.mon > 12){
+                        rt->t.mon = 0;
+                    }
+                    break;
+                case 4:
+                    rt->t.year++;
+                    if(rt->t.year > 2040){
+                        rt->t.year = 2000;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            rt->t.sec = 0;
+            rt->set();
+        }
+	}
+
 	//anzeige vorbereiten
 	void draw()
 	{
 		monitor::draw();
 		header();
 		footer();
+        if (settings==0)
+        {
 		no->draw_number16x16((rt->t.hour/10)%10,0*numberbigsize+charsize,2*charhighte);
 		no->draw_number16x16((rt->t.hour   )%10,1*numberbigsize+charsize,2*charhighte);
 
@@ -705,7 +762,17 @@ class watch:public monitor
 
 		no->draw_number16x16((rt->t.min/10)%10,2*numberbigsize+charsize+charsize,2*charhighte);
 		no->draw_number16x16((rt->t.min   )%10,3*numberbigsize+charsize+charsize,2*charhighte);
+        }
+        else if(settings == 2){
+		no->draw_number16x16((rt->t.hour/10)%10,0*numberbigsize+charsize,2*charhighte);
+		no->draw_number16x16((rt->t.hour   )%10,1*numberbigsize+charsize,2*charhighte);
 
+		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4+charsize,2*charhighte-charhighte/4*1);
+		no->draw_ASCI('.'                    ,2*numberbigsize+charsize/4+charsize,3*charhighte-charhighte/4*1);
+
+		no->draw_number16x16((rt->t.min/10)%10,2*numberbigsize+charsize+charsize,2*charhighte);
+		no->draw_number16x16((rt->t.min   )%10,3*numberbigsize+charsize+charsize,2*charhighte);
+		}
 		send();
 	}
 };
